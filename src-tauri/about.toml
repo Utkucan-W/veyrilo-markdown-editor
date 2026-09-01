@@ -1,0 +1,17 @@
+# Configuration for `cargo about`, used to regenerate ../THIRD-PARTY-LICENSES.md.
+# Run from this directory:  cargo about generate about.hbs > ../THIRD-PARTY-LICENSES.md
+accepted = [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0",
+    "MPL-2.0",
+    "Unlicense",
+    "0BSD",
+    "CC0-1.0",
+]

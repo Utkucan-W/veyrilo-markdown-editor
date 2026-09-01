@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Veyrilo flowing V logo</title>
+  <defs>
+    <linearGradient id="flow" x1="116" y1="120" x2="396" y2="390" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9"/>
+      <stop offset=".52" stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="#101827"/>
+  <path d="M116 142c43 0 59 28 76 78l38 108c7 20 16 31 26 31s19-11 26-31l38-108c17-50 33-78 76-78" fill="none" stroke="url(#flow)" stroke-width="42" stroke-linecap="round"/>
+  <path d="M133 119c31 7 42 32 55 70" fill="none" stroke="#E0F2FE" stroke-width="12" stroke-linecap="round" opacity=".9"/>
+  <path d="M379 119c-31 7-42 32-55 70" fill="none" stroke="#DDD6FE" stroke-width="12" stroke-linecap="round" opacity=".9"/>
+</svg>

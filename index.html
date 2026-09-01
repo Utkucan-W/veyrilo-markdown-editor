@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veyrilo — Markdown Editör</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet"
+        href="vendor/github.min.css">
+</head>
+<body>
+  <!-- ═══════════════ TOOLBAR ═══════════════ -->
+  <header id="toolbar">
+    <div class="toolbar-left">
+      <div class="app-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 5c4 0 5.5 2.6 7 6.4l1.4 4c.3.8.6 1.1 1.1 1.1s.8-.3 1.1-1.1l1.4-4C17.5 7.6 19 5 23 5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+          <path d="M5.5 3.2c2.8.6 3.7 2.9 4.8 5.6M21.5 3.2c-2.8.6-3.7 2.9-4.8 5.6" fill="none" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".75"/>
+        </svg>
+        <span class="app-title">Veyrilo</span>
+      </div>
+    </div>
+    
+    <!-- Center - Dosya işlemleri vs (Eskiden Center dı) -->
+    <div class="toolbar-center">
+      <button class="toolbar-btn" id="btn-new" data-i18n-title="toolbar.newTitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <span class="btn-label" data-i18n="toolbar.new">Yeni</span>
+      </button>
+      <button class="toolbar-btn" id="btn-open" data-i18n-title="toolbar.openTitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M9 18l3-3-3-3"/></svg>
+        <span class="btn-label" data-i18n="toolbar.open">Aç</span>
+      </button>
+      <div class="recent-files-menu">
+        <button class="toolbar-btn" id="btn-recent" data-i18n-title="toolbar.recentTitle" aria-haspopup="true" aria-expanded="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+          <span class="btn-label" data-i18n="toolbar.recent">En Son Açılanlar</span>
+        </button>
+        <div id="recent-files-dropdown" class="recent-files-dropdown hidden" role="menu"></div>
+      </div>
+      <button class="toolbar-btn" id="btn-save" data-i18n-title="toolbar.saveTitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span class="btn-label" data-i18n="toolbar.save">Kaydet</span>
+      </button>
+      <button class="toolbar-btn" id="btn-export-pdf" data-i18n-title="toolbar.pdfTitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+        <span class="btn-label" data-i18n="toolbar.pdf">PDF</span>
+      </button>
+      <button class="toolbar-btn" id="btn-export-html" data-i18n-title="toolbar.htmlTitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <span class="btn-label" data-i18n="toolbar.html">HTML</span>
+      </button>
+      <div class="toolbar-divider"></div>
+
+      <button class="toolbar-btn" id="btn-preview" data-i18n-title="toolbar.previewTitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="btn-label" data-i18n="toolbar.preview">Önizleme</span>
+      </button>
+      <button class="toolbar-btn" id="btn-focus" data-i18n-title="toolbar.focusTitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="btn-label" data-i18n="toolbar.focus">Odak</span>
+      </button>
+      <button class="toolbar-btn" id="btn-zen" data-i18n-title="toolbar.zenTitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        <span class="btn-label" data-i18n="toolbar.zen">Zen</span>
+      </button>
+    </div>
+
+    <div class="toolbar-right">
+      <button class="toolbar-btn" id="btn-settings" data-i18n-title="toolbar.settingsTitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span class="btn-label" data-i18n="toolbar.settings">Ayarlar</span>
+      </button>
+    </div>
+  </header>
+
+  <div id="document-title-bar" aria-live="polite">
+    <span id="document-name" class="document-name">belge.md</span>
+  </div>
+
+  <!-- ═══════════════ WORKSPACE TABS ═══════════════ -->
+  <nav id="workspace-tabs" role="tablist" aria-label="Workspace">
+    <button class="workspace-tab active" id="tab-editor" role="tab" aria-selected="true" data-i18n="workspace.editor">Belge</button>
+    <button class="workspace-tab" id="tab-guide" role="tab" aria-selected="false" data-i18n="guide.title">Markdown Rehberi</button>
+  </nav>
+
+  <!-- ═══════════════ FORMAT BAR ═══════════════ -->
+  <div id="format-bar">
+    <div class="format-group">
+      <button class="fmt-btn" data-action="h1" data-i18n-title="format.h1Title"><strong>H1</strong></button>
+      <button class="fmt-btn" data-action="h2" data-i18n-title="format.h2Title"><strong>H2</strong></button>
+      <button class="fmt-btn" data-action="h3" data-i18n-title="format.h3Title"><strong>H3</strong></button>
+    </div>
+    <span class="format-divider"></span>
+    <div class="format-group">
+      <button class="fmt-btn" data-action="bold" data-i18n-title="format.boldTitle"><strong>B</strong></button>
+      <button class="fmt-btn" data-action="italic" data-i18n-title="format.italicTitle"><em>I</em></button>
+      <button class="fmt-btn" data-action="strikethrough" data-i18n-title="format.strikethroughTitle"><s>S</s></button>
+      <button class="fmt-btn" data-action="highlight" data-i18n-title="format.highlightTitle">
+        <span style="background:#ffe066;color:#333;padding:0 3px;border-radius:2px">H</span>
+      </button>
+    </div>
+    <span class="format-divider"></span>
+    <div class="format-group">
+      <button class="fmt-btn" data-action="code" data-i18n-title="format.codeTitle"><code>&lt;/&gt;</code></button>
+      <button class="fmt-btn" data-action="codeblock" data-i18n-title="format.codeblockTitle">{ }</button>
+      <button class="fmt-btn" data-action="link" data-i18n-title="format.linkTitle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>
+      <button class="fmt-btn" data-action="image" data-i18n-title="format.imageTitle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      </button>
+    </div>
+    <span class="format-divider"></span>
+    <div class="format-group">
+      <button class="fmt-btn" data-action="list" data-i18n-title="format.listTitle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      </button>
+      <button class="fmt-btn" data-action="orderedList" data-i18n-title="format.orderedListTitle">1.</button>
+      <button class="fmt-btn" data-action="checkboxList" data-i18n-title="format.checkboxListTitle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </button>
+      <button class="fmt-btn" data-action="quote" data-i18n-title="format.quoteTitle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V21z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"/></svg>
+      </button>
+    </div>
+    <span class="format-divider"></span>
+    <div class="format-group">
+      <button class="fmt-btn" data-action="table" data-i18n-title="format.tableTitle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+      </button>
+      <button class="fmt-btn" data-action="horizontalRule" data-i18n-title="format.horizontalRuleTitle">―</button>
+    </div>
+    <div class="format-spacer"></div>
+    <div class="format-group font-size-group">
+      <button class="fmt-btn" id="btn-font-decrease" data-i18n-title="format.fontDecreaseTitle">A−</button>
+      <span id="font-size-display" class="font-size-display">18px</span>
+      <button class="fmt-btn" id="btn-font-increase" data-i18n-title="format.fontIncreaseTitle">A+</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ FIND BAR ═══════════════ -->
+  <div id="find-bar" class="hidden" role="search" data-i18n-aria-label="find.label" aria-label="Belgede ara">
+    <div class="find-row">
+      <button class="find-btn find-toggle" id="find-toggle-replace" type="button" aria-expanded="false" aria-controls="find-replace-row" data-i18n-title="find.toggleReplaceTitle" data-i18n-aria-label="find.toggleReplaceLabel" aria-label="Değiştirmeyi aç">›</button>
+      <div class="find-field">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="find-input" type="search" autocomplete="off" data-i18n-placeholder="find.placeholder">
+        <span id="find-count" aria-live="polite" data-i18n="find.noResults">Sonuç yok</span>
+      </div>
+      <button class="find-btn" id="find-previous" type="button" data-i18n-title="find.previousTitle" data-i18n-aria-label="find.previousLabel" aria-label="Önceki sonuç">↑</button>
+      <button class="find-btn" id="find-next" type="button" data-i18n-title="find.nextTitle" data-i18n-aria-label="find.nextLabel" aria-label="Sonraki sonuç">↓</button>
+      <button class="find-btn find-close" id="find-close" type="button" data-i18n-title="find.closeTitle" data-i18n-aria-label="find.closeLabel" aria-label="Aramayı kapat">×</button>
+    </div>
+    <div class="find-row hidden" id="find-replace-row">
+      <span class="find-toggle-spacer" aria-hidden="true"></span>
+      <div class="find-field">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h11a4 4 0 0 1 0 8H9"/><path d="m12 4 3 3-3 3"/><path d="m12 12-3 3 3 3"/></svg>
+        <input id="find-replace-input" type="text" autocomplete="off" data-i18n-placeholder="find.replacePlaceholder">
+      </div>
+      <button class="find-action-btn" id="find-replace-one" type="button" data-i18n="find.replace" data-i18n-title="find.replaceTitle">Değiştir</button>
+      <button class="find-action-btn" id="find-replace-all" type="button" data-i18n="find.replaceAll" data-i18n-title="find.replaceAllTitle">Tümü</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TABLE DIALOG ═══════════════ -->
+  <div id="table-dialog" class="hidden" role="dialog" aria-modal="true" aria-labelledby="table-dialog-title">
+    <div class="table-dialog-card">
+      <div class="table-dialog-header">
+        <div>
+          <span class="dialog-eyebrow" data-i18n="table.dialogEyebrow">Markdown</span>
+          <h2 id="table-dialog-title" data-i18n="table.dialogTitle">Tablo oluştur</h2>
+        </div>
+        <button id="table-dialog-close" class="settings-close-btn" type="button" data-i18n-title="table.closeTitle" data-i18n-aria-label="table.closeLabel" aria-label="Kapat">×</button>
+      </div>
+      <p class="table-dialog-hint" data-i18n="table.dialogHint">Kaç satır ve sütun istediğinizi seçin.</p>
+      <div class="table-size-fields">
+        <label for="table-rows" data-i18n="table.rows">Satır</label>
+        <input id="table-rows" type="number" min="2" max="20" value="3">
+        <label for="table-columns" data-i18n="table.columns">Sütun</label>
+        <input id="table-columns" type="number" min="1" max="12" value="3">
+      </div>
+      <div class="table-dialog-actions">
+        <button id="table-dialog-cancel" class="btn-secondary" type="button" data-i18n="table.cancel">İptal</button>
+        <button id="table-dialog-create" class="btn-primary" type="button" data-i18n="table.create">Tablo oluştur</button>
+      </div>
+    </div>
+  </div>
+
+  <article id="pdf-export-container" class="markdown-body" aria-hidden="true"></article>
+
+  <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+  <main id="main-container">
+    <div id="editor-pane">
+      <div id="editor-shell">
+        <div id="editor-code-background" aria-hidden="true"></div>
+        <pre id="editor-code-overlay" aria-hidden="true"></pre>
+        <pre id="editor-highlights" aria-hidden="true"></pre>
+        <textarea id="editor" data-i18n-placeholder="editor.placeholder" spellcheck="true" autofocus></textarea>
+        <pre id="editor-focus-overlay" aria-hidden="true"></pre>
+      </div>
+    </div>
+    <div id="preview-pane" class="hidden">
+      <article id="preview" class="markdown-body"></article>
+    </div>
+    <section id="guide-pane" class="hidden" role="tabpanel" aria-labelledby="tab-guide">
+      <div id="guide-content"></div>
+    </section>
+  </main>
+
+  <!-- ═══════════════ SETTINGS PANEL ═══════════════ -->
+  <div id="settings-overlay" class="hidden"></div>
+  <aside id="settings-panel" class="hidden">
+    <div class="settings-header">
+      <h2 data-i18n="settings.title">⚙ Ayarlar</h2>
+      <button id="btn-close-settings" class="settings-close-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="settings-content">
+      
+      <!-- Dil Seçimi -->
+      <div class="settings-group">
+        <label data-i18n="settings.language">Dil</label>
+        <select id="lang-select" class="setting-select">
+          <option value="tr">Türkçe</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <hr class="settings-divider">
+
+      <!-- Yazı Boyutu -->
+      <div class="settings-group">
+        <label><span data-i18n="settings.fontSize">Yazı Boyutu</span>: <span id="font-size-value">18</span>px</label>
+        <input type="range" id="font-size-slider" min="12" max="32" value="18" class="slider">
+      </div>
+
+      <hr class="settings-divider">
+
+      <!-- Yazı Tipi -->
+      <div class="settings-group">
+        <label data-i18n="settings.fontFamily">Yazı Tipi</label>
+        <select id="font-family-select">
+          <option value="sans" data-i18n="settings.fontSans">Sans Serif</option>
+          <option value="serif" data-i18n="settings.fontSerif">Serif</option>
+          <option value="mono" data-i18n="settings.fontMono">Monospace</option>
+          <option value="segoe" data-i18n="settings.fontSegoe">Segoe UI</option>
+          <option value="inter" data-i18n="settings.fontInter">Inter</option>
+          <option value="roboto" data-i18n="settings.fontRoboto">Roboto</option>
+          <option value="lora" data-i18n="settings.fontLora">Lora</option>
+          <option value="firacode" data-i18n="settings.fontFiraCode">Fira Code</option>
+          <option value="arial" data-i18n="settings.fontArial">Arial</option>
+          <option value="timesNewRoman" data-i18n="settings.fontTimesNewRoman">Times New Roman</option>
+          <option value="helvetica" data-i18n="settings.fontHelvetica">Helvetica</option>
+          <option value="verdana" data-i18n="settings.fontVerdana">Verdana</option>
+          <option value="tahoma" data-i18n="settings.fontTahoma">Tahoma</option>
+          <option value="courierNew" data-i18n="settings.fontCourierNew">Courier New</option>
+        </select>
+      </div>
+
+      <hr class="settings-divider">
+
+      <!-- Tema -->
+      <div class="settings-group">
+        <label data-i18n="settings.theme">Tema</label>
+        <div class="theme-buttons">
+          <button class="theme-btn" data-theme="light">
+            <div class="theme-preview theme-preview-light"></div>
+            <span data-i18n="settings.themeLight">Açık</span>
+          </button>
+          <button class="theme-btn active" data-theme="dark">
+            <div class="theme-preview theme-preview-dark"></div>
+            <span data-i18n="settings.themeDark">Koyu</span>
+          </button>
+          <button class="theme-btn" data-theme="sepia">
+            <div class="theme-preview theme-preview-sepia"></div>
+            <span data-i18n="settings.themeSepia">Sepia</span>
+          </button>
+          <button class="theme-btn" data-theme="dark-gray">
+            <div class="theme-preview theme-preview-dark-gray"></div>
+            <span data-i18n="settings.themeDarkGray">Koyu Gri</span>
+          </button>
+          <button class="theme-btn" data-theme="ocean">
+            <div class="theme-preview theme-preview-ocean"></div>
+            <span data-i18n="settings.themeOcean">Okyanus</span>
+          </button>
+          <button class="theme-btn" data-theme="forest">
+            <div class="theme-preview theme-preview-forest"></div>
+            <span data-i18n="settings.themeForest">Orman</span>
+          </button>
+          <button class="theme-btn" data-theme="rose">
+            <div class="theme-preview theme-preview-rose"></div>
+            <span data-i18n="settings.themeRose">Gül</span>
+          </button>
+        </div>
+      </div>
+
+      <hr class="settings-divider">
+
+      <!-- Satır Aralığı -->
+      <div class="settings-group">
+        <label data-i18n="settings.lineHeight">Satır Aralığı</label>
+        <select id="line-height-select">
+          <option value="1.4" data-i18n="settings.lhCompact">Sıkışık</option>
+          <option value="1.6" selected data-i18n="settings.lhNormal">Normal</option>
+          <option value="1.8" data-i18n="settings.lhRelaxed">Geniş</option>
+          <option value="2.0">2.0</option>
+        </select>
+      </div>
+
+      <hr class="settings-divider">
+
+      <!-- Editör Genişliği -->
+      <div class="settings-group">
+        <label data-i18n="settings.editorWidth">Editör Genişliği</label>
+        <select id="editor-width-select">
+          <option value="600px" data-i18n="settings.wNarrow">Dar</option>
+          <option value="800px" selected data-i18n="settings.wMedium">Orta</option>
+          <option value="1000px" data-i18n="settings.wWide">Geniş</option>
+          <option value="100%" data-i18n="settings.wFull">Tam</option>
+        </select>
+      </div>
+
+      <hr class="settings-divider">
+
+      <!-- Önizleme Düzeni -->
+      <div class="settings-group">
+        <label data-i18n="settings.previewMode">Önizleme Düzeni</label>
+        <select id="preview-mode-select">
+          <option value="side" data-i18n="settings.pmSide">Yan Yana</option>
+          <option value="bottom" data-i18n="settings.pmBottom">Alt Alta</option>
+          <option value="full" data-i18n="settings.pmFull">Tam Ekran</option>
+        </select>
+      </div>
+
+      <hr class="settings-divider">
+
+      <!-- Klavye Kısayolları -->
+      <div class="settings-group">
+        <label data-i18n="settings.shortcuts">⌨ Klavye Kısayolları</label>
+        <p class="settings-hint" data-i18n="settings.shortcutsHint">Değiştirmek için kısayolun üstüne tıklayın ve yeni tuş kombinasyonunu basın.</p>
+        <div id="shortcuts-container" class="shortcuts-list">
+          <!-- Kısayollar JS ile doldurulacak -->
+        </div>
+      </div>
+
+      <hr class="settings-divider">
+
+      <div class="settings-group">
+        <button id="btn-about" class="btn-danger" style="border-color:var(--accent);color:var(--accent)" data-i18n="settings.about">Veyrilo Hakkında</button>
+      </div>
+      <div class="settings-group">
+        <button id="btn-reset-settings" class="btn-danger" data-i18n="settings.reset">Ayarları Sıfırla</button>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ═══════════════ ABOUT MODAL ═══════════════ -->
+  <div id="about-overlay" class="hidden"></div>
+  <div id="about-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-logo">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 5c4 0 5.5 2.6 7 6.4l1.4 4c.3.8.6 1.1 1.1 1.1s.8-.3 1.1-1.1l1.4-4C17.5 7.6 19 5 23 5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+          <path d="M5.5 3.2c2.8.6 3.7 2.9 4.8 5.6M21.5 3.2c-2.8.6-3.7 2.9-4.8 5.6" fill="none" stroke="currentColor" stroke-width=".9" stroke-linecap="round" opacity=".75"/>
+        </svg>
+      </div>
+      <h2 data-i18n="about.title">Veyrilo Hakkında</h2>
+      <p data-i18n-html="about.desc" class="about-desc">Veyrilo, minimalist ve modern bir Markdown editörüdür.</p>
+      <div class="about-links">
+        <div class="about-link-row">
+          <span class="about-link-label" data-i18n="about.developerLabel">Geliştirici</span>
+          <a class="ext-link" id="about-developer-link" href="https://github.com/Utkucan-W">Utkucan-W</a>
+        </div>
+        <div class="about-link-row">
+          <span class="about-link-label" data-i18n="about.repositoryLabel">Proje deposu</span>
+          <a class="ext-link" id="about-repository-link" href="https://github.com/Utkucan-W/veyrilo-markdown-editor">Utkucan-W/veyrilo-markdown-editor</a>
+        </div>
+      </div>
+      <p data-i18n="about.contribute" class="about-contribute">Fikirlerinizi ve hata bildirimlerinizi paylaşabilirsiniz.</p>
+      <div class="modal-footer">
+        <button id="btn-close-about" class="btn-primary" data-i18n="about.close">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ KAPATMA ONAYI ═══════════════ -->
+  <div id="close-dialog" class="hidden" role="dialog" aria-modal="true" aria-labelledby="close-dialog-title">
+    <div class="table-dialog-card">
+      <h2 id="close-dialog-title" data-i18n="close.unsavedTitle">Kaydedilmemiş değişiklikler</h2>
+      <p class="table-dialog-hint" data-i18n="close.unsavedBody">Kaydedilmemiş değişiklikler var. Kapatırsanız değişiklikler kaybolacak.</p>
+      <div class="table-dialog-actions">
+        <button id="close-dialog-cancel" class="btn-secondary" type="button" data-i18n="close.cancel">İptal</button>
+        <button id="close-dialog-discard" class="btn-primary" type="button" data-i18n="close.discard">Kaydetmeden çık</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STATUS BAR ═══════════════ -->
+  <footer id="status-bar">
+    <div class="status-left">
+      <span id="stat-paragraphs" data-i18n="status.paragraphs">0 paragraf</span>
+      <span class="status-divider">|</span>
+      <span id="stat-lines" data-i18n="status.lines">0 satır</span>
+      <span class="status-divider">|</span>
+      <span id="stat-words" data-i18n="status.words">0 kelime</span>
+      <span class="status-divider">|</span>
+      <span id="stat-chars" data-i18n="status.chars">0 karakter</span>
+      <span class="status-divider">|</span>
+      <span id="stat-read-time" data-i18n="status.readTime">0 dk okuma</span>
+    </div>
+    <div class="status-right">
+      <span id="stat-cursor" data-i18n="status.cursor">Satır 1, Sütun 1</span>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Sürükle-bırak göstergesi: dosya pencerenin üzerindeyken görünür. -->
+  <div id="drop-overlay" class="hidden" aria-hidden="true">
+    <div class="drop-card">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      <span data-i18n="drop.hint">Markdown dosyasını açmak için bırakın</span>
+    </div>
+  </div>
+
+  <!-- Yerel kütüphaneler: çevrimdışı çalışır ve dış kaynak çalıştırmaz. -->
+  <script src="vendor/marked.umd.js"></script>
+  <script src="vendor/purify.min.js"></script>
+  <script src="vendor/highlight.min.js"></script>
+  <script src="js/sanitize.js"></script>
+  <script src="js/desktop.js"></script>
+
+  <!-- Uygulama Modülleri -->
+  <script src="js/i18n.js"></script>
+  <script src="js/markdown-guide.js"></script>
+  <script src="js/shortcuts.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/preview.js"></script>
+  <script src="js/file.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

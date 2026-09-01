@@ -1,0 +1,17 @@
+[package]
+name = "veyrilo"
+version = "1.0.0"
+description = "Veyrilo Markdown Editor"
+authors = ["Utkucan-W"]
+license = "MIT"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+open = "5"
+rfd = "0.15"
+serde = { version = "1", features = ["derive"] }
+tauri = { version = "2", features = [] }
+url = "2"

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Veyrilo
+Comment=Thoughts, in flow. — Minimalist Markdown editor
+Exec=env WINIT_UNIX_BACKEND=x11 GDK_BACKEND=x11 WEBKIT_DISABLE_DMABUF_RENDERER=1 @VEYRILO_EXECUTABLE@ %f
+Icon=@VEYRILO_ICON@
+Terminal=false
+Categories=Utility;TextEditor;
+MimeType=text/markdown;text/x-markdown;text/plain;
+Keywords=markdown;editor;notes;writing;
+StartupWMClass=veyrilo

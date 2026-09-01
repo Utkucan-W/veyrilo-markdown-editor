@@ -1,0 +1,20 @@
+# Dependency and build output
+node_modules/
+dist/
+out/
+release/
+src-tauri/target/
+
+# Logs and local application state
+*.log
+.DS_Store
+
+# Local agent/editor metadata
+.agents/
+.codex/
+
+# Local project workflow notes
+CONTEXT.md
+CRITIQUE-GATE.md
+CURRENT-STATE.md
+TOOL-VERIFICATION-MATRIX.md

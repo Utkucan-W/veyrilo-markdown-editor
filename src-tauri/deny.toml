@@ -1,0 +1,39 @@
+# cargo-deny configuration. Checked in CI:
+#   cargo deny --manifest-path src-tauri/Cargo.toml check bans licenses sources advisories
+
+[advisories]
+yanked = "deny"
+# Security vulnerabilities and yanked crates fail the build. "unmaintained"
+# advisories only fail for first-party (workspace) crates: the Linux
+# Tauri/GTK3 stack drags in many transitively unmaintained crates
+# (gtk-rs GTK3 bindings, proc-macro-error, unic-*) with no upgrade path,
+# and failing on those would make the gate meaningless.
+unmaintained = "workspace"
+ignore = []
+
+[licenses]
+confidence-threshold = 0.9
+allow = [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0",
+    "MPL-2.0",
+    "Unlicense",
+    "0BSD",
+    "CC0-1.0",
+]
+
+[bans]
+multiple-versions = "allow"
+wildcards = "allow"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
