@@ -11,6 +11,7 @@ function loadBrowserModule(dom, file) {
 
 const PROFILE_URL = 'https://github.com/Utkucan-W';
 const REPOSITORY_URL = 'https://github.com/Utkucan-W/veyrilo-markdown-editor';
+const PACKAGE_VERSION = JSON.parse(fs.readFileSync(require.resolve('../package.json'), 'utf8')).version;
 
 function aboutMarkup() {
   const html = fs.readFileSync(require.resolve('../index.html'), 'utf8');
@@ -30,6 +31,14 @@ test('Hakkında bölümü geliştirici ve depo bağlantılarını taşır', () =
   // Dış bağlantı yakalayıcısı yalnızca a.ext-link öğelerini işler.
   assert.ok(developer.classList.contains('ext-link'));
   assert.ok(repository.classList.contains('ext-link'));
+});
+
+test('Hakkında bölümü paket sürümünü gösterir', () => {
+  const html = fs.readFileSync(require.resolve('../index.html'), 'utf8');
+  assert.ok(html.includes(`<span id="app-version">${PACKAGE_VERSION}</span>`));
+
+  const builtHtml = fs.readFileSync(require.resolve('../dist/index.html'), 'utf8');
+  assert.ok(builtHtml.includes(`<span id="app-version">${PACKAGE_VERSION}</span>`));
 });
 
 test('Hakkında bağlantılarına tıklamak masaüstü tarayıcı köprüsünü çağırır', async () => {
@@ -56,7 +65,7 @@ test('Hakkında metinleri iki dilde de bağlantı etiketlerini tanımlar', () =>
 
   for (const language of ['tr', 'en']) {
     dom.window.I18n.setLanguage(language);
-    for (const key of ['about.title', 'about.desc', 'about.developerLabel', 'about.repositoryLabel', 'about.contribute']) {
+    for (const key of ['about.title', 'about.desc', 'about.versionLabel', 'about.developerLabel', 'about.repositoryLabel', 'about.contribute']) {
       const value = dom.window.I18n.t(key);
       assert.ok(value && value !== key, `${language}/${key} çevirisi eksik`);
     }

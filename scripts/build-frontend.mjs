@@ -1,4 +1,4 @@
-import { cp, mkdir, rm } from 'node:fs/promises';
+import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,3 +20,12 @@ for (const [source, target] of assets) {
   await mkdir(dirname(destination), { recursive: true });
   await cp(resolve(root, source), destination, { recursive: true });
 }
+
+const packageJson = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
+const indexPath = resolve(output, 'index.html');
+const indexHtml = await readFile(indexPath, 'utf8');
+const versionedIndex = indexHtml.replace(
+  /(<span id="app-version">)[^<]*(<\/span>)/,
+  `$1${packageJson.version}$2`,
+);
+await writeFile(indexPath, versionedIndex);

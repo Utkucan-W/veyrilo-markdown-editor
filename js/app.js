@@ -163,6 +163,21 @@ window.App = (function () {
     const F = window.FileManager;
     const St = window.Settings;
 
+    document.getElementById('btn-command-palette')?.addEventListener('click', () => window.CommandPalette?.open());
+    window.CommandPalette?.setActions([
+      { label: t('palette.new', 'Yeni belge'), keywords: 'new belge', run: () => F?.newDocument() },
+      { label: t('palette.open', 'Dosya aç'), keywords: 'open dosya', run: () => F?.openFile() },
+      { label: t('palette.save', 'Kaydet'), keywords: 'save kaydet', run: () => F?.saveFile() },
+      { label: t('palette.exportHTML', 'HTML dışa aktar'), keywords: 'html export dışa aktar', run: () => F?.exportHTML() },
+      { label: t('palette.exportPdf', 'PDF dışa aktar'), keywords: 'pdf export dışa aktar', run: () => F?.exportPdf() },
+      { label: t('palette.preview', 'Önizlemeyi aç/kapat'), keywords: 'preview önizleme', run: () => P?.toggle() },
+      { label: t('palette.focus', 'Odak modunu aç/kapat'), keywords: 'focus odak', run: () => E?.toggleFocusMode() },
+      { label: t('palette.zen', 'Zen modunu aç/kapat'), keywords: 'zen', run: () => E?.toggleZenMode() },
+      { label: t('palette.outline', 'İçindekileri aç/kapat'), keywords: 'outline başlık içindekiler', run: () => window.Outline?.toggle() },
+      { label: t('palette.guide', 'Markdown rehberini aç'), keywords: 'guide rehber', run: () => showWorkspace('guide') },
+      { label: t('palette.settings', 'Ayarları aç/kapat'), keywords: 'settings ayarlar', run: () => St?.togglePanel() },
+    ]);
+
     // Dosya butonları
     document.getElementById('btn-new')?.addEventListener('click', () => F && F.newDocument());
     document.getElementById('btn-open')?.addEventListener('click', () => F && F.openFile());
@@ -278,6 +293,7 @@ window.App = (function () {
   function showWelcome() {
     const editor = window.Editor;
     if (!editor) return;
+    if (editor.getRecoveryDraft?.()) return;
     const content = editor.getContent();
     if (content.trim() === '') {
       displayedWelcome = window.I18n ? window.I18n.t('welcome') : '# Veyrilo\'ya Hoş Geldiniz!\n\nYazmaya başlayın...';
@@ -307,6 +323,7 @@ window.App = (function () {
 
   function closeWindow() {
     forceClosing = true;
+    window.FileManager?.clearRecoveryDraft?.();
     // `window.destroy()` bazı Linux kurulumlarında (XWayland + zorlanmış X11
     // backend) prevent_close sonrası sessizce hiçbir şey yapmıyor. Rust
     // tarafındaki quit komutu süreç sonlandırmayı garanti eder.
@@ -400,6 +417,8 @@ window.App = (function () {
       if (window.Preview) window.Preview.init();
       if (window.FileManager) window.FileManager.init();
       if (window.Find) window.Find.init();
+      if (window.Outline) window.Outline.init();
+      if (window.CommandPalette) window.CommandPalette.init();
 
       registerShortcutHandlers();
       setupToolbarButtons();
@@ -407,7 +426,9 @@ window.App = (function () {
       registerCloseGuard();
       registerFileDrop();
       showWelcome();
-      window.FileManager?.openStartupFile?.();
+      Promise.resolve(window.FileManager?.openStartupFile?.()).then((opened) => {
+        if (!opened) window.FileManager?.offerRecoveryDraft?.();
+      });
 
       if (window.FileManager) {
         document.title = `${window.FileManager.getFileName()} — Veyrilo`;

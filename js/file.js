@@ -8,10 +8,14 @@ window.FileManager = (function () {
 
   let currentFileName = 'belge.md';
   let currentFilePath = null;
+  let currentFileMetadata = null;
+  let externalChangeTimer = null;
+  let externalChangePending = false;
   let lastSavedContent = null;
   let recentFiles = [];
   const RECENT_STORAGE_KEY = 'markedit_recent_files';
   const MAX_RECENT_FILES = 8;
+  const EXTERNAL_CHECK_INTERVAL = 2000;
 
   function t(key, fallback) {
     const value = window.I18n?.t?.(key);
@@ -39,9 +43,13 @@ window.FileManager = (function () {
     // menüsü ayrı tutulur ve buradan istenen dosya yeniden açılabilir.
     currentFileName = 'belge.md';
     currentFilePath = null;
+    stopFileMonitoring();
+    currentFileMetadata = null;
+    externalChangePending = false;
     lastSavedContent = null;
     loadRecentFiles();
     renderRecentFiles();
+    bindExternalChangeBanner();
     updateTitle();
   }
 
@@ -55,7 +63,11 @@ window.FileManager = (function () {
 
     currentFileName = 'belge.md';
     currentFilePath = null;
+    currentFileMetadata = null;
+    externalChangePending = false;
+    stopFileMonitoring();
     lastSavedContent = '';
+    window.Editor?.clearRecoveryDraft?.();
     saveFileName();
     updateTitle();
 
@@ -67,7 +79,11 @@ window.FileManager = (function () {
     if (window.Editor) window.Editor.setContent(content);
     currentFileName = fileName;
     currentFilePath = null;
+    currentFileMetadata = null;
+    externalChangePending = false;
+    stopFileMonitoring();
     lastSavedContent = content;
+    window.Editor?.clearRecoveryDraft?.();
     saveFileName();
     updateTitle();
   }
@@ -136,13 +152,17 @@ window.FileManager = (function () {
       window.Editor?.setContent(file.content);
       currentFileName = file.name;
       currentFilePath = file.path || null;
+      setFileMetadata(file);
       lastSavedContent = file.content;
+      window.Editor?.clearRecoveryDraft?.();
       rememberRecentFile(file);
       saveFileName();
       updateTitle();
       showToast(message('file.opened', '"{name}" dosyası açıldı', { name: file.name }));
+      return true;
     } catch {
       showToast(t('file.readError', 'Dosya okunamadı'));
+      return false;
     }
   }
 
@@ -155,13 +175,17 @@ window.FileManager = (function () {
       window.Editor?.setContent(file.content);
       currentFileName = file.name;
       currentFilePath = file.path || null;
+      setFileMetadata(file);
       lastSavedContent = file.content;
+      window.Editor?.clearRecoveryDraft?.();
       rememberRecentFile(file);
       saveFileName();
       updateTitle();
       showToast(message('file.opened', '"{name}" dosyası açıldı', { name: file.name }));
+      return true;
     } catch {
       showToast(t('file.readError', 'Dosya okunamadı'));
+      return false;
     }
   }
 
@@ -178,7 +202,9 @@ window.FileManager = (function () {
       window.Editor?.setContent(file.content);
       currentFileName = file.name;
       currentFilePath = file.path || path;
+      setFileMetadata(file);
       lastSavedContent = file.content;
+      window.Editor?.clearRecoveryDraft?.();
       rememberRecentFile(file);
       saveFileName();
       updateTitle();
@@ -315,7 +341,9 @@ window.FileManager = (function () {
       const file = typeof saved === 'string' ? { name: saved } : saved;
       currentFileName = file.name;
       currentFilePath = file.path || null;
+      setFileMetadata(file);
       lastSavedContent = content;
+      window.Editor?.clearRecoveryDraft?.();
       rememberRecentFile(file);
       saveFileName();
       updateTitle();
@@ -331,7 +359,9 @@ window.FileManager = (function () {
       if (!saved) return;
       currentFileName = saved.name;
       currentFilePath = saved.path || currentFilePath;
+      setFileMetadata(saved);
       lastSavedContent = content;
+      window.Editor?.clearRecoveryDraft?.();
       rememberRecentFile(saved);
       saveFileName();
       updateTitle();
@@ -459,6 +489,7 @@ ${htmlContent}
       if (ext === 'md') {
         currentFileName = handle.name;
         lastSavedContent = content;
+        window.Editor?.clearRecoveryDraft?.();
         saveFileName();
         updateTitle();
       }
@@ -493,6 +524,123 @@ ${htmlContent}
     } catch (e) {
       // Sessizce devam et
     }
+  }
+
+  function setFileMetadata(file) {
+    currentFileMetadata = Number.isFinite(file?.modified_ms) && Number.isFinite(file?.size)
+      ? { modified_ms: file.modified_ms, size: file.size }
+      : null;
+    externalChangePending = false;
+    hideExternalChangeBanner();
+    startFileMonitoring();
+  }
+
+  function stopFileMonitoring() {
+    if (externalChangeTimer !== null) {
+      window.clearInterval(externalChangeTimer);
+      externalChangeTimer = null;
+    }
+  }
+
+  function startFileMonitoring() {
+    stopFileMonitoring();
+    if (!currentFilePath || !window.desktopAPI?.fileMetadata || !currentFileMetadata) return;
+    externalChangeTimer = window.setInterval(checkForExternalChange, EXTERNAL_CHECK_INTERVAL);
+  }
+
+  async function checkForExternalChange() {
+    if (!currentFilePath || !currentFileMetadata || externalChangePending) return false;
+    try {
+      const metadata = await window.desktopAPI.fileMetadata(currentFilePath);
+      const changed = metadata?.modified_ms !== currentFileMetadata.modified_ms
+        || metadata?.size !== currentFileMetadata.size;
+      if (!changed) return false;
+
+      externalChangePending = true;
+      showExternalChangeBanner();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function showExternalChangeBanner() {
+    const banner = document.getElementById('external-change-banner');
+    if (!banner) return;
+    banner.classList.remove('hidden');
+    banner.querySelector('[data-action="reload"]')?.focus();
+  }
+
+  function hideExternalChangeBanner() {
+    document.getElementById('external-change-banner')?.classList.add('hidden');
+  }
+
+  async function reloadExternalFile() {
+    if (!currentFilePath || !window.desktopAPI?.openPath) return false;
+    try {
+      const file = await window.desktopAPI.openPath(currentFilePath);
+      if (!file) return false;
+      window.Editor?.setContent(file.content);
+      currentFileName = file.name;
+      currentFilePath = file.path || currentFilePath;
+      lastSavedContent = file.content;
+      window.Editor?.clearRecoveryDraft?.();
+      setFileMetadata(file);
+      saveFileName();
+      updateTitle();
+      showToast(message('file.reloaded', '"{name}" diskten yeniden yüklendi', { name: file.name }));
+      return true;
+    } catch {
+      showToast(t('file.readError', 'Dosya okunamadı'));
+      return false;
+    }
+  }
+
+  async function keepExternalFile() {
+    externalChangePending = false;
+    hideExternalChangeBanner();
+    if (currentFilePath && window.desktopAPI?.fileMetadata) {
+      try {
+        currentFileMetadata = await window.desktopAPI.fileMetadata(currentFilePath);
+      } catch {
+        currentFileMetadata = null;
+      }
+    }
+    startFileMonitoring();
+    showToast(t('file.externalKept', 'Düzenleyicideki sürüm korunuyor'));
+  }
+
+  function bindExternalChangeBanner() {
+    document.getElementById('external-change-reload')?.addEventListener('click', reloadExternalFile);
+    document.getElementById('external-change-keep')?.addEventListener('click', keepExternalFile);
+  }
+
+  function offerRecoveryDraft() {
+    const draft = window.Editor?.getRecoveryDraft?.();
+    if (!draft) return false;
+    const restore = window.confirm(t(
+      'recovery.prompt',
+      'Önceki oturumdan kurtarılmamış bir taslak bulundu. Geri yüklensin mi?',
+    ));
+    if (!restore) {
+      window.Editor?.clearRecoveryDraft?.();
+      return false;
+    }
+
+    window.Editor?.setContent(draft);
+    window.Editor?.clearRecoveryDraft?.();
+    currentFileName = 'kurtarılan-belge.md';
+    currentFilePath = null;
+    currentFileMetadata = null;
+    lastSavedContent = null;
+    saveFileName();
+    updateTitle();
+    showToast(t('recovery.restored', 'Taslak geri yüklendi'));
+    return true;
+  }
+
+  function clearRecoveryDraft() {
+    window.Editor?.clearRecoveryDraft?.();
   }
 
   // ─── Başlık güncelle ───
@@ -542,5 +690,10 @@ ${htmlContent}
     exportHTML,
     getFileName,
     hasUnsavedChanges,
+    checkForExternalChange,
+    reloadExternalFile,
+    keepExternalFile,
+    offerRecoveryDraft,
+    clearRecoveryDraft,
   };
 })();

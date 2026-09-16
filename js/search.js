@@ -280,10 +280,13 @@ window.Find = (function () {
     const activeMatch = highlights.querySelector('mark.active');
     if (!activeMatch || editor.clientHeight <= 0) return;
 
-    // The overlay uses the same typography and wrapping as the textarea, so
-    // the active mark's vertical position is the most reliable match position.
-    const matchTop = activeMatch.offsetTop;
-    const matchHeight = activeMatch.offsetHeight || 0;
+    // Inline marks can report an offsetTop of zero even when they are several
+    // lines down in the overlay. Use viewport geometry and convert it back to
+    // the editor's content coordinates so wrapped matches are positioned too.
+    const editorRect = editor.getBoundingClientRect();
+    const matchRect = activeMatch.getBoundingClientRect();
+    const matchTop = matchRect.top - editorRect.top + editor.scrollTop;
+    const matchHeight = matchRect.height || activeMatch.offsetHeight || 0;
     const targetTop = matchTop - Math.max((editor.clientHeight - matchHeight) / 2, 0);
     editor.scrollTop = Math.max(0, targetTop);
     syncHighlightScroll();

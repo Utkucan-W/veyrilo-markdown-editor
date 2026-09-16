@@ -16,6 +16,7 @@ window.Editor = (function () {
   let codeOverlayTimer = null;
   let statsTimer = null;
   let autoSaveTimer = null;
+  let recoveryDraft = null;
   let historyCurrent = null;
   let undoStack = [];
   let redoStack = [];
@@ -61,9 +62,11 @@ window.Editor = (function () {
   // ─── İçerik yükleme ───
   function startWithNewDocument() {
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY);
+      recoveryDraft = saved && saved.trim() ? saved : null;
     } catch (e) {
-      console.warn('Yeni belge başlatılamadı:', e);
+      recoveryDraft = null;
+      console.warn('Taslak kurtarma verisi okunamadı:', e);
     }
     editor.value = '';
   }
@@ -74,6 +77,19 @@ window.Editor = (function () {
       localStorage.setItem(STORAGE_KEY, editor.value);
     } catch (e) {
       console.warn('Otomatik kaydetme başarısız:', e);
+    }
+  }
+
+  function getRecoveryDraft() {
+    return recoveryDraft;
+  }
+
+  function clearRecoveryDraft() {
+    recoveryDraft = null;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Kurtarma taslağı temizlenemedi:', e);
     }
   }
 
@@ -98,6 +114,9 @@ window.Editor = (function () {
     }
     if (window.Preview) {
       window.Preview.update(text);
+    }
+    if (window.Outline) {
+      window.Outline.update(text);
     }
   }
 
@@ -988,6 +1007,7 @@ window.Editor = (function () {
 
   return {
     init, getContent, setContent, replaceValue, getElement, clear,
+    getRecoveryDraft, clearRecoveryDraft,
     bold, italic, strikethrough, inlineCode, highlight,
     link, image,
     heading1, heading2, heading3, heading4, heading5, heading6,

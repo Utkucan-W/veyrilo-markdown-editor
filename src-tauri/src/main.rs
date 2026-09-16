@@ -9,12 +9,35 @@ struct Document {
     name: String,
     content: String,
     path: String,
+    modified_ms: u64,
 }
 
 #[derive(Serialize)]
 struct SavedFile {
     name: String,
     path: String,
+    modified_ms: u64,
+}
+
+#[derive(Serialize)]
+struct FileMetadata {
+    modified_ms: u64,
+    size: u64,
+}
+
+fn metadata_for_path(path: &Path) -> Result<FileMetadata, String> {
+    let metadata = fs::metadata(path).map_err(|error| error.to_string())?;
+    let modified_ms = metadata
+        .modified()
+        .ok()
+        .and_then(|time| time.duration_since(std::time::UNIX_EPOCH).ok())
+        .map(|duration| duration.as_millis().min(u128::from(u64::MAX)) as u64)
+        .unwrap_or(0);
+
+    Ok(FileMetadata {
+        modified_ms,
+        size: metadata.len(),
+    })
 }
 
 fn document_from_path(path: &Path) -> Result<Document, String> {
@@ -29,6 +52,7 @@ fn document_from_path(path: &Path) -> Result<Document, String> {
         name,
         content,
         path: path.to_string_lossy().into_owned(),
+        modified_ms: metadata_for_path(path)?.modified_ms,
     })
 }
 
@@ -92,6 +116,7 @@ fn save_file(content: String, default_name: String) -> Result<Option<SavedFile>,
     Ok(Some(SavedFile {
         name,
         path: path.to_string_lossy().into_owned(),
+        modified_ms: metadata_for_path(&path)?.modified_ms,
     }))
 }
 
@@ -108,7 +133,13 @@ fn save_file_to_path(content: String, path: String) -> Result<SavedFile, String>
     Ok(SavedFile {
         name,
         path: path.to_string_lossy().into_owned(),
+        modified_ms: metadata_for_path(&path)?.modified_ms,
     })
+}
+
+#[tauri::command]
+fn file_metadata(path: String) -> Result<FileMetadata, String> {
+    metadata_for_path(Path::new(&path))
 }
 
 #[tauri::command]
@@ -142,6 +173,7 @@ fn main() {
             open_startup_file,
             save_file,
             save_file_to_path,
+            file_metadata,
             open_external,
             quit_app
         ])

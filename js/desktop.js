@@ -11,6 +11,7 @@ window.desktopAPI = (function () {
     openStartupFile: () => invoke('open_startup_file'),
     saveFile: (content, defaultName) => invoke('save_file', { content, defaultName }),
     saveFileToPath: (content, path) => invoke('save_file_to_path', { content, path }),
+    fileMetadata: (path) => invoke('file_metadata', { path }),
     openExternal: (url) => invoke('open_external', { url }),
     onCloseRequested: (handler) => window.__TAURI__?.window?.getCurrentWindow?.().onCloseRequested(handler),
     // Pencere üzerine dosya sürüklenmesi işletim sistemi seviyesinde yakalanır;

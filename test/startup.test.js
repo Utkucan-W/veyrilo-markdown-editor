@@ -9,7 +9,7 @@ function loadBrowserModule(dom, file) {
   vm.runInContext(source, dom.getInternalVMContext(), { filename: file });
 }
 
-test('uygulama açılışında otomatik kaydedilmiş içerik yerine boş belge açılır', () => {
+test('uygulama açılışında otomatik kaydedilmiş içerik editöre basılmadan kurtarma taslağı olarak tutulur', () => {
   const dom = new JSDOM(
     '<body><div id="editor-shell"><pre id="editor-focus-overlay"></pre><textarea id="editor"></textarea></div></body>',
     { runScripts: 'outside-only', url: 'https://veyrilo.test' },
@@ -22,5 +22,6 @@ test('uygulama açılışında otomatik kaydedilmiş içerik yerine boş belge a
   dom.window.Editor.init();
 
   assert.equal(dom.window.Editor.getContent(), '');
-  assert.equal(dom.window.localStorage.getItem('veyrilo_content'), null);
+  assert.equal(dom.window.Editor.getRecoveryDraft(), '# Önceki belge');
+  assert.equal(dom.window.localStorage.getItem('veyrilo_content'), '# Önceki belge');
 });

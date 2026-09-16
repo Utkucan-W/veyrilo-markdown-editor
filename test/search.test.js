@@ -73,13 +73,26 @@ test('arama sonucu editörü eşleşmenin bulunduğu konuma kaydırır', () => {
   const highlights = dom.window.document.getElementById('editor-highlights');
   Object.defineProperty(editor, 'clientWidth', { value: 480 });
   Object.defineProperty(editor, 'clientHeight', { value: 200 });
-  Object.defineProperty(dom.window.HTMLElement.prototype, 'offsetTop', {
-    configurable: true,
-    get() { return this.classList.contains('active') ? 900 : 0; },
+  Object.defineProperty(editor, 'getBoundingClientRect', {
+    value: () => ({ top: 100, left: 0, right: 480, bottom: 300, height: 200, width: 480 }),
   });
-  Object.defineProperty(dom.window.HTMLElement.prototype, 'offsetHeight', {
+  Object.defineProperty(highlights, 'getBoundingClientRect', {
+    value: () => ({ top: 100, left: 0, right: 480, bottom: 300, height: 200, width: 480 }),
+  });
+  Object.defineProperty(dom.window.HTMLElement.prototype, 'getBoundingClientRect', {
     configurable: true,
-    get() { return this.classList.contains('active') ? 18 : 0; },
+    value() {
+      return this.classList.contains('active')
+        ? {
+          top: 1000,
+          left: 0,
+          right: 80,
+          bottom: 1018,
+          height: 18,
+          width: 80,
+        }
+        : { top: 100, left: 0, right: 0, bottom: 100, height: 0, width: 0 };
+    },
   });
   loadBrowserModule(dom, require.resolve('../js/search.js'));
   dom.window.Find.init();
@@ -92,6 +105,66 @@ test('arama sonucu editörü eşleşmenin bulunduğu konuma kaydırır', () => {
   assert.equal(editor.scrollTop, 809);
   assert.equal(highlights.style.width, '480px');
   assert.equal(highlights.style.height, '200px');
+});
+
+test('arama sonucu inline eşleşmenin gerçek ekran konumuna göre kaydırır', () => {
+  const dom = new JSDOM(
+    '<body>' +
+      '<div id="find-bar" class="hidden">' +
+        '<input id="find-input">' +
+        '<span id="find-count"></span>' +
+        '<button id="find-next"></button>' +
+      '</div>' +
+      '<pre id="editor-highlights" class="hidden"></pre>' +
+      '<textarea id="editor">' +
+        'İlk satır\n'.repeat(40) +
+        'aranan ilk satır\n' +
+        'İlk satır\n'.repeat(40) +
+        'aranan ikinci satır\nson satır</textarea>' +
+    '</body>',
+    { runScripts: 'outside-only', url: 'https://veyrilo.test' },
+  );
+  dom.window.Editor = {
+    getElement: () => dom.window.document.getElementById('editor'),
+  };
+  dom.window.I18n = { t: () => 'Sonuç yok' };
+  const editor = dom.window.document.getElementById('editor');
+  const highlights = dom.window.document.getElementById('editor-highlights');
+  Object.defineProperty(editor, 'clientHeight', { value: 200 });
+  Object.defineProperty(editor, 'clientWidth', { value: 480 });
+  Object.defineProperty(editor, 'getBoundingClientRect', {
+    value: () => ({ top: 100, left: 0, right: 480, bottom: 300, height: 200, width: 480 }),
+  });
+  Object.defineProperty(highlights, 'getBoundingClientRect', {
+    value: () => ({ top: 100, left: 0, right: 480, bottom: 300, height: 200, width: 480 }),
+  });
+  Object.defineProperty(dom.window.HTMLElement.prototype, 'offsetTop', {
+    configurable: true,
+    get() { return 0; },
+  });
+  Object.defineProperty(dom.window.HTMLElement.prototype, 'getBoundingClientRect', {
+    configurable: true,
+    value() {
+      if (!this.classList.contains('active')) {
+        return { top: 100, left: 0, right: 0, bottom: 100, height: 0, width: 0 };
+      }
+      const top = 1000
+        + Array.from(this.parentElement.querySelectorAll('mark')).indexOf(this) * 800
+        - editor.scrollTop;
+      return { top, left: 0, right: 80, bottom: top + 18, height: 18, width: 80 };
+    },
+  });
+  loadBrowserModule(dom, require.resolve('../js/search.js'));
+  dom.window.Find.init();
+  dom.window.Find.open();
+
+  const input = dom.window.document.getElementById('find-input');
+  input.value = 'aranan';
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+
+  assert.equal(editor.scrollTop, 809);
+  dom.window.document.getElementById('find-next').click();
+  assert.equal(editor.scrollTop, 1609);
 });
 
 test('Ctrl+F kısayolu arama handlerını çağırır', () => {

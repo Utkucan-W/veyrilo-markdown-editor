@@ -51,6 +51,10 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         <span class="btn-label" data-i18n="toolbar.html">HTML</span>
       </button>
+      <button class="toolbar-btn" id="btn-command-palette" data-i18n-title="toolbar.commandPaletteTitle">
+        <span aria-hidden="true">⌘</span>
+        <span class="btn-label" data-i18n="toolbar.commandPalette">Komutlar</span>
+      </button>
       <div class="toolbar-divider"></div>
 
       <button class="toolbar-btn" id="btn-preview" data-i18n-title="toolbar.previewTitle">
@@ -65,6 +69,10 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
         <span class="btn-label" data-i18n="toolbar.zen">Zen</span>
       </button>
+      <button class="toolbar-btn" id="btn-outline" data-i18n-title="toolbar.outlineTitle" aria-pressed="false">
+        <span aria-hidden="true">☷</span>
+        <span class="btn-label" data-i18n="toolbar.outline">İçindekiler</span>
+      </button>
     </div>
 
     <div class="toolbar-right">
@@ -77,6 +85,14 @@
 
   <div id="document-title-bar" aria-live="polite">
     <span id="document-name" class="document-name">belge.md</span>
+  </div>
+
+  <div id="external-change-banner" class="hidden" role="alert">
+    <span data-i18n="file.externalChanged">Bu dosya başka bir uygulamada değiştirildi.</span>
+    <div class="external-change-actions">
+      <button id="external-change-reload" data-action="reload" class="btn-secondary" type="button" data-i18n="file.reloadExternal">Diskteki sürümü yükle</button>
+      <button id="external-change-keep" data-action="keep" class="btn-primary" type="button" data-i18n="file.keepExternal">Bu sürümü koru</button>
+    </div>
   </div>
 
   <!-- ═══════════════ WORKSPACE TABS ═══════════════ -->
@@ -204,6 +220,13 @@
     <div id="preview-pane" class="hidden">
       <article id="preview" class="markdown-body"></article>
     </div>
+    <aside id="outline-pane" class="hidden" aria-label="Outline">
+      <div class="outline-header">
+        <h2 data-i18n="outline.title">İçindekiler</h2>
+        <span id="outline-count" aria-live="polite"></span>
+      </div>
+      <nav id="outline-list" aria-label="Document headings"></nav>
+    </aside>
     <section id="guide-pane" class="hidden" role="tabpanel" aria-labelledby="tab-guide">
       <div id="guide-content"></div>
     </section>
@@ -370,6 +393,7 @@
       </div>
       <h2 data-i18n="about.title">Veyrilo Hakkında</h2>
       <p data-i18n-html="about.desc" class="about-desc">Veyrilo, minimalist ve modern bir Markdown editörüdür.</p>
+          <p class="about-version"><span data-i18n="about.versionLabel">Sürüm</span> <span id="app-version">1.1.0</span></p>
       <div class="about-links">
         <div class="about-link-row">
           <span class="about-link-label" data-i18n="about.developerLabel">Geliştirici</span>
@@ -419,6 +443,15 @@
 
   <div id="toast" class="toast hidden"></div>
 
+  <div id="command-palette" class="hidden" role="dialog" aria-modal="true" aria-labelledby="command-palette-title">
+    <div class="command-palette-card">
+      <h2 id="command-palette-title" data-i18n="palette.title">Komut paleti</h2>
+      <input id="command-palette-input" type="search" autocomplete="off" data-i18n-placeholder="palette.placeholder" aria-controls="command-palette-list">
+      <div id="command-palette-list" role="listbox"></div>
+      <p class="command-palette-hint" data-i18n="palette.hint">↑↓ seç · Enter çalıştır · Esc kapat</p>
+    </div>
+  </div>
+
   <!-- Sürükle-bırak göstergesi: dosya pencerenin üzerindeyken görünür. -->
   <div id="drop-overlay" class="hidden" aria-hidden="true">
     <div class="drop-card">
@@ -443,6 +476,8 @@
   <script src="js/preview.js"></script>
   <script src="js/file.js"></script>
   <script src="js/settings.js"></script>
+  <script src="js/outline.js"></script>
+  <script src="js/command-palette.js"></script>
   <script src="js/search.js"></script>
   <script src="js/app.js"></script>
 </body>
