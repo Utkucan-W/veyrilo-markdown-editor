@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-16
+
+The first Veyrilo v1.1 release improves long-document navigation and protects
+work from external file changes or unexpected shutdowns.
+
+### Added
+
+- External file change detection with reload or keep-editor-version actions.
+- Recovery drafts that can be restored after an unexpected shutdown.
+- Searchable command palette (`Ctrl+Shift+P`).
+- Live Outline navigation from Markdown headings.
+- Version display in the About dialog.
+- Turkish and English translations for the new interface text.
+
+### Fixed
+
+- `Ctrl+F` now scrolls the active match into the visible editor area, including
+  matches outside the current viewport.
+
 ## [1.0.0] - 2026-09-01
 
 Initial public release. Linux desktop build (Tauri 2), distributed as an
@@ -37,5 +56,6 @@ x86_64 Debian package.
 - The About dialog links to the developer's GitHub profile and to the
   project repository; both open in the system browser.
 
-[Unreleased]: https://github.com/Utkucan-W/veyrilo-markdown-editor/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Utkucan-W/veyrilo-markdown-editor/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.0.0

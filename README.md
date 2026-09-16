@@ -20,6 +20,19 @@ what this repository is here for.
 
 Built with [Tauri 2](https://v2.tauri.app/), vanilla JavaScript, and Rust.
 
+**Latest release: [Veyrilo v1.1.0](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.0)** · [Download the Debian package](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/download/v1.1.0/Veyrilo_1.1.0_amd64.deb)
+
+## What's new in v1.1.0
+
+- External file change warnings with the choice to reload the disk version or
+  keep the editor version.
+- Crash and unexpected-shutdown draft recovery with explicit user confirmation.
+- A searchable command palette on `Ctrl+Shift+P`.
+- A live Outline panel generated from Markdown headings.
+- `Ctrl+F` now scrolls every active search match into view, including matches
+  far outside the current viewport.
+- The About dialog displays the application version.
+
 ## Screenshots
 
 ![The editor with the formatting toolbar and live document statistics](docs/screenshots/editor.png)
@@ -275,8 +288,8 @@ Maintainers can publish a version by pushing a version tag. GitHub Actions runs
 the checks, builds the Linux `.deb`, and attaches it to a GitHub Release:
 
 ```bash
-git tag v1.0.1
-git push origin v1.0.1
+git tag v1.1.1
+git push origin v1.1.1
 ```
 
 The workflow files are in `.github/workflows/ci.yml` and

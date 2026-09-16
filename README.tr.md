@@ -20,6 +20,20 @@ bunun için var.
 
 [Tauri 2](https://v2.tauri.app/), sade JavaScript ve Rust ile geliştirildi.
 
+**Güncel sürüm: [Veyrilo v1.1.0](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.0)** · [Debian paketini indir](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/download/v1.1.0/Veyrilo_1.1.0_amd64.deb)
+
+## v1.1.0 ile gelenler
+
+- Disk sürümünü yeniden yükleme veya editör sürümünü koruma seçenekleri sunan
+  harici dosya değişikliği uyarıları.
+- Çökme ve beklenmeyen kapanma sonrasında açık kullanıcı onayıyla taslak
+  kurtarma.
+- `Ctrl+Shift+P` ile açılan, aranabilir komut paleti.
+- Markdown başlıklarından oluşturulan canlı Outline / İçindekiler paneli.
+- `Ctrl+F`, geçerli ekranın dışındaki eşleşmeler de dahil olmak üzere etkin
+  arama eşleşmesini artık görünür alana kaydırır.
+- Hakkında penceresinde uygulama sürümünün gösterilmesi.
+
 ## Ekran görüntüleri
 
 ![Biçimlendirme çubuğu ve canlı belge istatistikleriyle editör](docs/screenshots/editor.png)
@@ -278,8 +292,8 @@ Bakımcılar bir sürüm etiketi göndererek yayın yapabilir. GitHub Actions
 kontrolleri çalıştırır, Linux `.deb` paketini derler ve GitHub Release'e ekler:
 
 ```bash
-git tag v1.0.1
-git push origin v1.0.1
+git tag v1.1.1
+git push origin v1.1.1
 ```
 
 Akış dosyaları `.github/workflows/ci.yml` ve `.github/workflows/release.yml`
