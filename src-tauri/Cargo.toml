@@ -11,7 +11,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 open = "5"
-rfd = "0.15"
+rfd = "0.17"
 serde = { version = "1", features = ["derive"] }
 tauri = { version = "2", features = [] }
 url = "2"
