@@ -22,7 +22,7 @@
   "author": "Utkucan-W",
   "license": "MIT",
   "devDependencies": {
-    "@tauri-apps/cli": "^2.11.4",
+    "@tauri-apps/cli": "^2.12.1",
     "jsdom": "^26.1.0"
   },
   "dependencies": {
