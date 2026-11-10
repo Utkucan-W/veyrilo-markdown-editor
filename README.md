@@ -20,18 +20,18 @@ what this repository is here for.
 
 Built with [Tauri 2](https://v2.tauri.app/), vanilla JavaScript, and Rust.
 
-**Latest release: [Veyrilo v1.1.0](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.0)** · [Download the Debian package](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/download/v1.1.0/Veyrilo_1.1.0_amd64.deb)
+**Latest release: [Veyrilo v1.1.1](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.1)** · [Download (.deb, .rpm, AppImage)](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest)
 
-## What's new in v1.1.0
+## What's new in v1.1.1
 
-- External file change warnings with the choice to reload the disk version or
-  keep the editor version.
-- Crash and unexpected-shutdown draft recovery with explicit user confirmation.
-- A searchable command palette on `Ctrl+Shift+P`.
-- A live Outline panel generated from Markdown headings.
-- `Ctrl+F` now scrolls every active search match into view, including matches
-  far outside the current viewport.
-- The About dialog displays the application version.
+- **RPM and AppImage packages** next to the `.deb`, plus an AUR recipe.
+- Packaged builds now start on NVIDIA GPUs under Wayland.
+- `Ctrl+F` works in the full-screen preview: matches are highlighted and
+  scrolled into view.
+- `Ctrl+-` / `Ctrl++` work on Turkish Q keyboards, and editing shortcuts no
+  longer leak into the search box or the Markdown Guide.
+
+See [CHANGELOG.md](CHANGELOG.md) for the full list.
 
 ## Screenshots
 
@@ -107,9 +107,19 @@ your live settings, so they stay correct after you reassign a key.
 
 ## Install on Linux
 
-The automated release workflow produces an x86_64 Debian package (`.deb`).
-Fedora RPM and Arch packages are not published yet; use the source-install path
-for those distributions.
+Every release publishes three x86_64 packages: a Debian package (`.deb`), an
+RPM (`.rpm`), and a portable AppImage. Releases before v1.1.1
+ship only the `.deb`.
+
+### Any distribution (AppImage)
+
+Download `Veyrilo_*_amd64.AppImage` from the
+[latest release](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest), then:
+
+```bash
+chmod +x Veyrilo_*_amd64.AppImage
+./Veyrilo_*_amd64.AppImage
+```
 
 ### Debian and Ubuntu
 
@@ -127,8 +137,14 @@ tools are not required.
 
 ### Fedora
 
-An RPM release asset is not available yet. To install Veyrilo on Fedora today,
-clone the project and build it locally:
+Download `Veyrilo-*.x86_64.rpm` from the
+[latest release](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest), then:
+
+```bash
+sudo dnf install ./Veyrilo-*.x86_64.rpm
+```
+
+To build from source instead:
 
 ```bash
 git clone https://github.com/Utkucan-W/veyrilo-markdown-editor.git
@@ -139,12 +155,19 @@ npm run install:local
 ```
 
 The final command builds Veyrilo and adds it to the current user's application
-menu. Do not install the Debian release asset with `rpm` or `dnf`.
+menu.
 
 ### Arch Linux and CachyOS
 
-An Arch package (`.pkg.tar.zst`) is not available yet. Build and install from
-the repository instead:
+The repository ships an AUR-style recipe that repackages the release `.deb`:
+
+```bash
+git clone https://github.com/Utkucan-W/veyrilo-markdown-editor.git
+cd veyrilo-markdown-editor/packaging/aur
+makepkg -si
+```
+
+Or build and install from source:
 
 ```bash
 git clone https://github.com/Utkucan-W/veyrilo-markdown-editor.git
@@ -155,7 +178,7 @@ npm run install:local
 ```
 
 For development without a menu installation, replace the last command with
-`npm run desktop:dev`. Do not use the Debian `.deb` asset with `pacman`.
+`npm run desktop:dev`. Do not install the raw `.deb` with `pacman`; use the AUR recipe above.
 
 ### Removing a local installation
 
@@ -232,12 +255,15 @@ npm run check
 # Run the test suite
 npm test
 
-# Build a Linux x64 desktop application (.deb)
+# Build Linux x64 packages (.deb, .rpm, AppImage)
 npm run dist
 
 # Build and add to the current user's application menu
 npm run install:local
 ```
+
+Arch-based hosts need `NO_STRIP=true npm run dist` for the AppImage step
+(the bundled `strip` cannot read newer `.relr.dyn` libraries).
 
 The generated Debian package is written to
 `src-tauri/target/release/bundle/deb/`. Install it with your distribution's
@@ -285,7 +311,7 @@ To report a vulnerability privately, see [SECURITY.md](SECURITY.md).
 ## Maintainer release process
 
 Maintainers can publish a version by pushing a version tag. GitHub Actions runs
-the checks, builds the Linux `.deb`, and attaches it to a GitHub Release:
+the checks, builds the Linux `.deb`, `.rpm`, and AppImage, and attaches them to a GitHub Release:
 
 ```bash
 git tag v1.1.1

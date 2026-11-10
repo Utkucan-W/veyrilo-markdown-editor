@@ -1,6 +1,6 @@
 {
   "name": "veyrilo",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Veyrilo - Minimalist Markdown Editor",
   "scripts": {
     "start": "npm run desktop:dev",
@@ -10,7 +10,7 @@
     "desktop:dev": "npm run build:frontend && tauri dev",
     "desktop:build": "tauri build",
     "dist": "npm run desktop:build",
-    "install:local": "npm run desktop:build && node scripts/install-local.mjs",
+    "install:local": "tauri build --no-bundle && node scripts/install-local.mjs",
     "uninstall:local": "node scripts/uninstall-local.mjs"
   },
   "keywords": [

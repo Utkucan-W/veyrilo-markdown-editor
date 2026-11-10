@@ -165,7 +165,25 @@ fn safe_external_url(value: &str) -> Option<Url> {
     matches!(parsed.scheme(), "http" | "https").then_some(parsed)
 }
 
+// Same defaults as packaging/linux/veyrilo.desktop.in, so deb/rpm/AppImage
+// launchers (which do not set them) avoid WebKitGTK's Wayland/NVIDIA crash.
+// A value the user already exported wins.
+#[cfg(target_os = "linux")]
+fn apply_linux_display_defaults() {
+    for (key, value) in [
+        ("GDK_BACKEND", "x11"),
+        ("WINIT_UNIX_BACKEND", "x11"),
+        ("WEBKIT_DISABLE_DMABUF_RENDERER", "1"),
+    ] {
+        if std::env::var_os(key).is_none() {
+            std::env::set_var(key, value);
+        }
+    }
+}
+
 fn main() {
+    #[cfg(target_os = "linux")]
+    apply_linux_display_defaults();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             open_file,

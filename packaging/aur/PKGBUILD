@@ -1,0 +1,22 @@
+# Maintainer: Utkucan-W
+# Repackages the official release .deb. On each release bump pkgver and run
+# `updpkgsums` then `makepkg --printsrcinfo > .SRCINFO` before pushing to AUR.
+pkgname=veyrilo-bin
+pkgver=1.1.0
+pkgrel=1
+pkgdesc="A calm, local-first Markdown editor for Linux"
+arch=('x86_64')
+url="https://github.com/Utkucan-W/veyrilo-markdown-editor"
+license=('MIT')
+depends=('webkit2gtk-4.1' 'gtk3')
+provides=('veyrilo')
+conflicts=('veyrilo')
+source=("Veyrilo_${pkgver}_amd64.deb::${url}/releases/download/v${pkgver}/Veyrilo_${pkgver}_amd64.deb"
+        "LICENSE-${pkgver}::https://raw.githubusercontent.com/Utkucan-W/veyrilo-markdown-editor/v${pkgver}/LICENSE")
+sha256sums=('ddc7a1c5f843948801e02ab78884f065e4f9d7741f855dc31dfa09d0b2088a21'
+            '0f5a6b74cdb76419b2d4e1b324749643471a4aed9d52422cfa37ae0f8fd38021')
+
+package() {
+  tar -xzf data.tar.gz -C "${pkgdir}"
+  install -Dm644 "LICENSE-${pkgver}" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

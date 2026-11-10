@@ -18,3 +18,10 @@ CONTEXT.md
 CRITIQUE-GATE.md
 CURRENT-STATE.md
 TOOL-VERIFICATION-MATRIX.md
+
+# makepkg output from packaging/aur
+packaging/aur/src/
+packaging/aur/pkg/
+packaging/aur/*.deb
+packaging/aur/LICENSE-*
+packaging/aur/*.pkg.tar.*

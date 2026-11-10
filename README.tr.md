@@ -20,19 +20,18 @@ bunun için var.
 
 [Tauri 2](https://v2.tauri.app/), sade JavaScript ve Rust ile geliştirildi.
 
-**Güncel sürüm: [Veyrilo v1.1.0](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.0)** · [Debian paketini indir](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/download/v1.1.0/Veyrilo_1.1.0_amd64.deb)
+**Güncel sürüm: [Veyrilo v1.1.1](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.1)** · [İndir (.deb, .rpm, AppImage)](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest)
 
-## v1.1.0 ile gelenler
+## v1.1.1 ile gelenler
 
-- Disk sürümünü yeniden yükleme veya editör sürümünü koruma seçenekleri sunan
-  harici dosya değişikliği uyarıları.
-- Çökme ve beklenmeyen kapanma sonrasında açık kullanıcı onayıyla taslak
-  kurtarma.
-- `Ctrl+Shift+P` ile açılan, aranabilir komut paleti.
-- Markdown başlıklarından oluşturulan canlı Outline / İçindekiler paneli.
-- `Ctrl+F`, geçerli ekranın dışındaki eşleşmeler de dahil olmak üzere etkin
-  arama eşleşmesini artık görünür alana kaydırır.
-- Hakkında penceresinde uygulama sürümünün gösterilmesi.
+- `.deb` yanında **RPM ve AppImage paketleri** ve bir AUR tarifi.
+- Paketlenmiş sürüm artık Wayland altında NVIDIA ekran kartlarında açılıyor.
+- `Ctrl+F` tam ekran önizlemede çalışıyor: eşleşmeler işaretlenir ve görünür
+  alana kaydırılır.
+- `Ctrl+-` / `Ctrl++` Türkçe Q klavyede çalışıyor; düzenleme kısayolları
+  artık arama kutusuna veya Markdown Rehberi'ne sızmıyor.
+
+Tam liste için [CHANGELOG.md](CHANGELOG.md).
 
 ## Ekran görüntüleri
 
@@ -111,9 +110,19 @@ değiştirdiğinizde rehber de güncellenir.
 
 ## Linux'a kurulum
 
-Otomatik yayın akışı x86_64 Debian paketi (`.deb`) üretir. Fedora RPM ve Arch
-paketleri henüz yayınlanmıyor; bu dağıtımlarda kaynaktan kurulum yolunu
-kullanın.
+Her sürüm üç x86_64 paketi yayınlar: Debian paketi (`.deb`), RPM (`.rpm`) ve
+taşınabilir AppImage. v1.1.1 öncesindeki sürümler
+yalnız `.deb` içerir.
+
+### Her dağıtım (AppImage)
+
+[Son sürümden](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest)
+`Veyrilo_*_amd64.AppImage` dosyasını indirin, ardından:
+
+```bash
+chmod +x Veyrilo_*_amd64.AppImage
+./Veyrilo_*_amd64.AppImage
+```
 
 ### Debian ve Ubuntu
 
@@ -131,8 +140,14 @@ geliştirme aracı gerekmez.
 
 ### Fedora
 
-Henüz RPM yayın dosyası yok. Veyrilo'yu bugün Fedora'da kurmak için projeyi
-klonlayıp yerel olarak derleyin:
+[Son sürümden](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest)
+`Veyrilo-*.x86_64.rpm` dosyasını indirin, ardından:
+
+```bash
+sudo dnf install ./Veyrilo-*.x86_64.rpm
+```
+
+Kaynaktan derlemek isterseniz:
 
 ```bash
 git clone https://github.com/Utkucan-W/veyrilo-markdown-editor.git
@@ -143,11 +158,18 @@ npm run install:local
 ```
 
 Son komut Veyrilo'yu derler ve geçerli kullanıcının uygulama menüsüne ekler.
-Debian yayın dosyasını `rpm` veya `dnf` ile kurmayın.
 
 ### Arch Linux ve CachyOS
 
-Henüz Arch paketi (`.pkg.tar.zst`) yok. Bunun yerine depodan derleyip kurun:
+Depoda, yayın `.deb` dosyasını yeniden paketleyen AUR tarzı bir tarif var:
+
+```bash
+git clone https://github.com/Utkucan-W/veyrilo-markdown-editor.git
+cd veyrilo-markdown-editor/packaging/aur
+makepkg -si
+```
+
+Ya da kaynaktan derleyip kurun:
 
 ```bash
 git clone https://github.com/Utkucan-W/veyrilo-markdown-editor.git
@@ -158,7 +180,7 @@ npm run install:local
 ```
 
 Menüye kurmadan geliştirme yapmak için son komut yerine `npm run desktop:dev`
-kullanın. Debian `.deb` dosyasını `pacman` ile kullanmayın.
+kullanın. Ham `.deb` dosyasını `pacman` ile kurmayın; yukarıdaki AUR tarifini kullanın.
 
 ### Yerel kurulumu kaldırma
 
@@ -235,7 +257,7 @@ npm run check
 # Test paketini çalıştır
 npm test
 
-# Linux x64 masaüstü uygulaması (.deb) derle
+# Linux x64 paketlerini (.deb, .rpm, AppImage) derle
 npm run dist
 
 # Derleyip geçerli kullanıcının uygulama menüsüne ekle
@@ -289,7 +311,7 @@ dosyasına bakın.
 ## Sürüm yayınlama (bakımcı için)
 
 Bakımcılar bir sürüm etiketi göndererek yayın yapabilir. GitHub Actions
-kontrolleri çalıştırır, Linux `.deb` paketini derler ve GitHub Release'e ekler:
+kontrolleri çalıştırır, Linux `.deb`, `.rpm` ve AppImage paketlerini derler ve GitHub Release'e ekler:
 
 ```bash
 git tag v1.1.1

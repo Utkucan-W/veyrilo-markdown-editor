@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-10
+
+Packaging and search fixes. Veyrilo now ships for every major Linux family.
+
+### Added
+
+- RPM and AppImage release assets next to the Debian package.
+- An AUR-style `PKGBUILD` in `packaging/aur/` that repackages the release `.deb`.
+
+### Fixed
+
+- Packaged builds no longer exit with a Wayland protocol error on NVIDIA GPUs:
+  the X11 and WebKit DMA-BUF defaults from the desktop entry are now applied
+  by the application itself, unless the user already set them.
+- Search in the full-screen preview layout now highlights matches in the
+  preview and scrolls to them.
+- Typing in the editor while search is open no longer moves focus or the view.
+- `Ctrl+-` and `Ctrl++` work on Turkish Q keyboards.
+- Editing shortcuts no longer act on the document while another text field,
+  the full-screen preview, or the Markdown Guide is focused.
+- `Esc` in search, replace, and the command palette no longer also leaves Zen
+  mode.
+- `Ctrl+P` from the Markdown Guide returns to the document and shows the
+  preview; Outline jumps work in the full-screen preview.
+- Opening a dropped file now tracks it for external change warnings.
+
 ## [1.1.0] - 2026-09-16
 
 The first Veyrilo v1.1 release improves long-document navigation and protects
@@ -56,6 +82,7 @@ x86_64 Debian package.
 - The About dialog links to the developer's GitHub profile and to the
   project repository; both open in the system browser.
 
-[Unreleased]: https://github.com/Utkucan-W/veyrilo-markdown-editor/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/Utkucan-W/veyrilo-markdown-editor/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.1
 [1.1.0]: https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.0.0
