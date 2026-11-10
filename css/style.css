@@ -734,6 +734,17 @@ body.focus-mode.focus-overlay-active #editor {
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 42%, transparent);
 }
 
+#preview mark.find-match {
+  color: inherit;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: 3px;
+}
+
+#preview mark.find-match.active {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
 #editor::placeholder {
   color: var(--text-placeholder);
   font-style: italic;

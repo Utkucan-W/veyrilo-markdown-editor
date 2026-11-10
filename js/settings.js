@@ -86,6 +86,7 @@ window.Settings = (function () {
   function applyPreviewMode(mode) {
     settings.previewMode = mode;
     document.body.setAttribute('data-preview-mode', mode);
+    if (window.Find?.isOpen?.()) window.Find.refresh(false);
     save();
   }
 

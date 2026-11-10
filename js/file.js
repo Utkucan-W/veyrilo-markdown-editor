@@ -249,7 +249,9 @@ window.FileManager = (function () {
       window.Editor?.setContent(file.content);
       currentFileName = file.name;
       currentFilePath = file.path || path;
+      setFileMetadata(file);
       lastSavedContent = file.content;
+      window.Editor?.clearRecoveryDraft?.();
       rememberRecentFile(file);
       saveFileName();
       updateTitle();

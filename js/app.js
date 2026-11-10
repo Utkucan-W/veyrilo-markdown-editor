@@ -76,7 +76,7 @@ window.App = (function () {
     S.registerHandler('replace', () => window.Find && window.Find.openWithReplace());
     S.registerHandler('preview', () => {
       if (P) {
-        const active = P.toggle();
+        const active = togglePreview();
         showToast(t(active ? 'toast.previewOpened' : 'toast.previewClosed', active ? 'Önizleme açıldı' : 'Önizleme kapatıldı'));
       }
     });
@@ -147,6 +147,16 @@ window.App = (function () {
     }
   }
 
+  // Rehber sekmesindeyken önizleme rehberin yanına açılmasın: editöre dön.
+  function togglePreview() {
+    const guide = document.getElementById('guide-pane');
+    if (guide && !guide.classList.contains('hidden')) {
+      showWorkspace('editor');
+      return window.Preview?.show();
+    }
+    return window.Preview?.toggle();
+  }
+
   function setupWorkspaceTabs() {
     document.getElementById('tab-editor')?.addEventListener('click', () => showWorkspace('editor'));
     document.getElementById('tab-guide')?.addEventListener('click', () => showWorkspace('guide'));
@@ -170,7 +180,7 @@ window.App = (function () {
       { label: t('palette.save', 'Kaydet'), keywords: 'save kaydet', run: () => F?.saveFile() },
       { label: t('palette.exportHTML', 'HTML dışa aktar'), keywords: 'html export dışa aktar', run: () => F?.exportHTML() },
       { label: t('palette.exportPdf', 'PDF dışa aktar'), keywords: 'pdf export dışa aktar', run: () => F?.exportPdf() },
-      { label: t('palette.preview', 'Önizlemeyi aç/kapat'), keywords: 'preview önizleme', run: () => P?.toggle() },
+      { label: t('palette.preview', 'Önizlemeyi aç/kapat'), keywords: 'preview önizleme', run: () => togglePreview() },
       { label: t('palette.focus', 'Odak modunu aç/kapat'), keywords: 'focus odak', run: () => E?.toggleFocusMode() },
       { label: t('palette.zen', 'Zen modunu aç/kapat'), keywords: 'zen', run: () => E?.toggleZenMode() },
       { label: t('palette.outline', 'İçindekileri aç/kapat'), keywords: 'outline başlık içindekiler', run: () => window.Outline?.toggle() },
@@ -200,7 +210,7 @@ window.App = (function () {
     // Toggle butonları
     document.getElementById('btn-preview')?.addEventListener('click', () => {
       if (P) {
-        const active = P.toggle();
+        const active = togglePreview();
         showToast(t(active ? 'toast.previewOpened' : 'toast.previewClosed', active ? 'Önizleme açıldı' : 'Önizleme kapatıldı'));
       }
     });

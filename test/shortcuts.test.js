@@ -144,3 +144,47 @@ test('Ctrl+H bul ve değiştir aksiyonuna bağlıdır', () => {
   assert.equal(event.defaultPrevented, true);
   assert.equal(calls, 1);
 });
+
+test('Türkçe Q klavyede Ctrl+- yazıyı küçültür, Ctrl+Shift+- yatay çizgi ekler', () => {
+  const dom = loadShortcuts();
+  const calls = [];
+  ['fontIncrease', 'fontDecrease', 'horizontalRule'].forEach((id) => {
+    dom.window.Shortcuts.registerHandler(id, () => calls.push(id));
+  });
+  dom.window.Shortcuts.init();
+  // TR Q: '-' tuşu ABD düzeninin Equal konumunda, '*' ise Minus konumunda.
+  dispatch(dom, { key: '-', code: 'Equal', ctrl: true, shift: false, alt: false });
+  dispatch(dom, { key: '_', code: 'Equal', ctrl: true, shift: true, alt: false });
+  dispatch(dom, { key: '*', code: 'Minus', ctrl: true, shift: false, alt: false });
+  dispatch(dom, { key: '+', code: 'Digit4', ctrl: true, shift: true, alt: false });
+  assert.deepEqual(calls, ['fontDecrease', 'horizontalRule', 'fontIncrease']);
+});
+
+test('düzenleme kısayolları başka metin kutusunda ve tam ekran önizlemede belgeyi değiştirmez', () => {
+  const dom = loadShortcuts();
+  const { document } = dom.window;
+  document.body.innerHTML = '<input id="find-input"><textarea id="editor"></textarea>';
+  const calls = [];
+  ['undo', 'bold', 'save'].forEach((id) => dom.window.Shortcuts.registerHandler(id, () => calls.push(id)));
+  dom.window.Shortcuts.init();
+
+  const fire = (target, key) => {
+    const event = new dom.window.KeyboardEvent('keydown', { key, ctrlKey: true, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    return event;
+  };
+  const findInput = document.getElementById('find-input');
+  const editor = document.getElementById('editor');
+
+  assert.equal(fire(findInput, 'z').defaultPrevented, false);
+  fire(findInput, 's');
+  assert.deepEqual(calls, ['save']);
+
+  fire(editor, 'b');
+  assert.deepEqual(calls, ['save', 'bold']);
+
+  document.body.classList.add('preview-active');
+  document.body.setAttribute('data-preview-mode', 'full');
+  fire(editor, 'b');
+  assert.deepEqual(calls, ['save', 'bold']);
+});

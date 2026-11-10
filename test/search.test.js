@@ -263,3 +263,96 @@ test('tek karakterli arama yalnızca gerçek karakteri vurgular', () => {
     .substring(dom.window.document.getElementById('editor').selectionStart,
       dom.window.document.getElementById('editor').selectionEnd), '1');
 });
+
+test('tam ekran önizlemede arama önizleme metnini işaretler ve sonuçlar arasında gezer', () => {
+  const dom = new JSDOM(
+    '<body class="preview-active" data-preview-mode="full">' +
+      '<div id="find-bar" class="hidden">' +
+        '<input id="find-input"><span id="find-count"></span>' +
+        '<button id="find-next"></button>' +
+        '<div id="find-replace-row" class="hidden"><input id="find-replace-input"></div>' +
+        '<button id="find-replace-one"></button><button id="find-replace-all"></button>' +
+      '</div>' +
+      '<pre id="editor-highlights" class="hidden"></pre>' +
+      '<textarea id="editor">**Vey**rilo ve veyrilo</textarea>' +
+      '<article id="preview"><p><strong>Vey</strong>rilo ve veyrilo</p></article>' +
+    '</body>',
+    { runScripts: 'outside-only', url: 'https://veyrilo.test' },
+  );
+  const { document } = dom.window;
+  dom.window.Editor = { getElement: () => document.getElementById('editor') };
+  dom.window.I18n = { t: () => 'Sonuç yok' };
+  loadBrowserModule(dom, require.resolve('../js/search.js'));
+  dom.window.Find.init();
+  dom.window.Find.openWithReplace();
+
+  const input = document.getElementById('find-input');
+  input.value = 'veyrilo';
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+
+  assert.equal(document.getElementById('find-count').textContent, '1 / 2');
+  // İlk eşleşme <strong> sınırını aşar: iki parça, ikisi de aktif.
+  assert.deepEqual([...document.querySelectorAll('#preview mark.active')].map((m) => m.textContent), ['Vey', 'rilo']);
+  assert.equal(document.querySelectorAll('#editor-highlights mark').length, 0);
+  assert.equal(document.getElementById('find-replace-one').disabled, true);
+  assert.equal(dom.window.Find.replaceAll(), 0);
+
+  document.getElementById('find-next').click();
+  assert.equal(document.getElementById('find-count').textContent, '2 / 2');
+  assert.equal(document.querySelector('#preview mark.active').textContent, 'veyrilo');
+
+  dom.window.Find.close();
+  assert.equal(document.querySelectorAll('#preview mark').length, 0);
+  assert.equal(document.getElementById('preview').innerHTML, '<p><strong>Vey</strong>rilo ve veyrilo</p>');
+});
+
+test('arama açıkken editöre yazmak odağı arama kutusuna kaçırmaz', () => {
+  const dom = new JSDOM(
+    '<body><div id="find-bar" class="hidden"><input id="find-input"><span id="find-count"></span></div>' +
+      '<pre id="editor-highlights" class="hidden"></pre><textarea id="editor">abc abc</textarea></body>',
+    { runScripts: 'outside-only', url: 'https://veyrilo.test' },
+  );
+  const { document } = dom.window;
+  dom.window.Editor = { getElement: () => document.getElementById('editor') };
+  dom.window.I18n = { t: () => 'Sonuç yok' };
+  loadBrowserModule(dom, require.resolve('../js/search.js'));
+  dom.window.Find.init();
+  dom.window.Find.open();
+  const input = document.getElementById('find-input');
+  input.value = 'abc';
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+
+  const editor = document.getElementById('editor');
+  editor.focus();
+  editor.value = 'abc abc abc';
+  editor.setSelectionRange(11, 11);
+  editor.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+
+  assert.equal(document.activeElement, editor);
+  assert.equal(editor.selectionStart, 11);
+  assert.equal(document.getElementById('find-count').textContent, '1 / 3');
+});
+
+test('tam ekran önizlemede arama ayrı paragrafları birleştirip eşleştirmez', () => {
+  const dom = new JSDOM(
+    '<body class="preview-active" data-preview-mode="full">' +
+      '<div id="find-bar" class="hidden"><input id="find-input"><span id="find-count"></span></div>' +
+      '<textarea id="editor">foo\n\nbar</textarea>' +
+      '<article id="preview"><p>foo</p><p>bar</p></article>' +
+    '</body>',
+    { runScripts: 'outside-only', url: 'https://veyrilo.test' },
+  );
+  const { document } = dom.window;
+  dom.window.Editor = { getElement: () => document.getElementById('editor') };
+  dom.window.I18n = { t: () => 'Sonuç yok' };
+  loadBrowserModule(dom, require.resolve('../js/search.js'));
+  dom.window.Find.init();
+  dom.window.Find.open();
+  const input = document.getElementById('find-input');
+  input.value = 'foobar';
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+  assert.equal(document.querySelectorAll('#preview mark').length, 0);
+  input.value = 'bar';
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+  assert.equal(document.querySelector('#preview mark.active').textContent, 'bar');
+});

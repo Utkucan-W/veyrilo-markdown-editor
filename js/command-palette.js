@@ -53,7 +53,9 @@ window.CommandPalette = (function () {
     }
 
     if (event.key === 'Escape') {
+      // Genel Esc dinleyicisi zen modunu/ayarları da kapatmasın.
       event.preventDefault();
+      event.stopPropagation();
       close();
     } else if (event.key === 'ArrowDown') {
       event.preventDefault();

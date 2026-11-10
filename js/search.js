@@ -48,6 +48,7 @@ window.Find = (function () {
         move(event.shiftKey ? -1 : 1);
       } else if (event.key === 'Escape') {
         event.preventDefault();
+        event.stopPropagation(); // genel Esc dinleyicisi zen modunu da kapatmasın
         close();
       }
     });
@@ -64,11 +65,13 @@ window.Find = (function () {
         else replaceCurrent();
       } else if (event.key === 'Escape') {
         event.preventDefault();
+        event.stopPropagation(); // genel Esc dinleyicisi zen modunu da kapatmasın
         close();
       }
     });
+    // Yazarken imleç arama kutusuna kaçmasın: yalnız sayıyı ve vurguyu yenile.
     editor.addEventListener('input', () => {
-      if (openState) refresh(true);
+      if (openState) refresh(false);
     });
     editor.addEventListener('scroll', syncHighlightScroll);
     window.addEventListener('resize', syncHighlightMetrics);
@@ -112,16 +115,18 @@ window.Find = (function () {
     openState = false;
     bar.classList.add('hidden');
     clearHighlights();
-    editor.focus();
+    if (!isPreviewOnly()) editor.focus();
   }
 
   function refresh(selectFirst) {
     if (!input || !editor) return;
     matches = computeMatches();
-    currentIndex = matches.length && selectFirst ? 0 : -1;
+    if (!matches.length) currentIndex = -1;
+    else if (selectFirst) currentIndex = 0;
+    else if (currentIndex >= 0) currentIndex = Math.min(currentIndex, matches.length - 1);
     updateCount();
-    if (currentIndex >= 0) selectMatch(currentIndex);
-    renderHighlights();
+    if (selectFirst && currentIndex >= 0) selectMatch(currentIndex);
+    renderHighlights(selectFirst);
   }
 
   // Değiştirme sonrası aramayı yeniler ve imlecin bulunduğu konumdan sonraki
@@ -140,9 +145,40 @@ window.Find = (function () {
     renderHighlights();
   }
 
+  // Önizleme "Tam Ekran" düzeninde textarea gizlidir; arama önizleme metninde yapılır.
+  function isPreviewOnly() {
+    return document.body.classList.contains('preview-active') &&
+      document.body.getAttribute('data-preview-mode') === 'full' &&
+      Boolean(document.getElementById('preview'));
+  }
+
+  // Metin düğümlerini ve birleşik metindeki başlangıçlarını verir. Farklı
+  // bloklar (paragraf, hücre, liste öğesi) arasına \0 konur ki "foo"+"bar"
+  // ayrı paragraflarda "foobar" diye eşleşmesin.
+  const BLOCKS = 'p, li, h1, h2, h3, h4, h5, h6, td, th, pre, blockquote, dt, dd';
+  function previewSegments() {
+    const root = document.getElementById('preview');
+    root.querySelectorAll('mark.find-match').forEach((mark) => mark.replaceWith(...mark.childNodes));
+    root.normalize();
+    const walker = document.createTreeWalker(root, 4 /* NodeFilter.SHOW_TEXT */);
+    const nodes = [];
+    const offsets = [];
+    let text = '';
+    let lastBlock;
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const block = node.parentElement.closest(BLOCKS);
+      if (nodes.length && block !== lastBlock) text += '\0';
+      lastBlock = block;
+      nodes.push(node);
+      offsets.push(text.length);
+      text += node.data;
+    }
+    return { nodes, offsets, text };
+  }
+
   function computeMatches() {
     const query = input.value;
-    const text = editor.value;
+    const text = isPreviewOnly() ? previewSegments().text : editor.value;
     const found = [];
     if (!query) return found;
 
@@ -164,7 +200,7 @@ window.Find = (function () {
 
   // ─── Değiştirme ───
   function replaceCurrent() {
-    if (!editor || !replaceInput) return 0;
+    if (!editor || !replaceInput || isPreviewOnly()) return 0;
     const match = matches[currentIndex];
     if (!match) {
       window.App?.showToast?.(t('toast.replaceNoMatch', 'Değiştirilecek eşleşme yok'));
@@ -182,7 +218,7 @@ window.Find = (function () {
   }
 
   function replaceAll() {
-    if (!editor || !replaceInput) return 0;
+    if (!editor || !replaceInput || isPreviewOnly()) return 0;
     if (!matches.length) {
       window.App?.showToast?.(t('toast.replaceNoMatch', 'Değiştirilecek eşleşme yok'));
       return 0;
@@ -221,7 +257,8 @@ window.Find = (function () {
   }
 
   function updateReplaceButtons() {
-    const enabled = matches.length > 0;
+    // Önizleme metni kaynakla birebir eşleşmez; orada değiştirme kapalı.
+    const enabled = matches.length > 0 && !isPreviewOnly();
     if (replaceOneButton) replaceOneButton.disabled = !enabled;
     if (replaceAllButton) replaceAllButton.disabled = !enabled;
   }
@@ -236,7 +273,7 @@ window.Find = (function () {
 
   function selectMatch(index) {
     const match = matches[index];
-    if (!match || !editor) return;
+    if (!match || !editor || isPreviewOnly()) return;
     editor.focus();
     editor.setSelectionRange(match.start, match.end);
     input?.focus();
@@ -252,11 +289,19 @@ window.Find = (function () {
     count.textContent = `${currentIndex + 1} / ${matches.length}`;
   }
 
-  function renderHighlights() {
-    if (!highlights || !editor || !openState || !input?.value || !matches.length) {
+  // scroll=false: yazarken/yeniden çizimde görünümü eşleşmeye zıplatma.
+  function renderHighlights(scroll = true) {
+    if (!editor || !openState || !input?.value || !matches.length) {
       clearHighlights();
       return;
     }
+    if (isPreviewOnly()) {
+      clearEditorHighlights();
+      renderPreviewHighlights(scroll);
+      return;
+    }
+    clearPreviewHighlights();
+    if (!highlights) return;
 
     const text = editor.value;
     let html = '';
@@ -271,7 +316,30 @@ window.Find = (function () {
     highlights.innerHTML = html;
     highlights.classList.remove('hidden');
     syncHighlightScroll();
-    scrollToCurrentMatch();
+    if (scroll) scrollToCurrentMatch();
+  }
+
+  // Eşleşmeleri sondan başa sarar; böylece bölünen metin düğümleri önceki
+  // eşleşmelerin konumlarını bozmaz. Eşleşme birden çok düğüme yayılabilir.
+  function renderPreviewHighlights(scroll) {
+    const { nodes, offsets } = previewSegments();
+
+    for (let index = matches.length - 1; index >= 0; index -= 1) {
+      const match = matches[index];
+      for (let n = nodes.length - 1; n >= 0; n -= 1) {
+        const nodeStart = offsets[n];
+        const from = Math.max(match.start, nodeStart) - nodeStart;
+        const to = Math.min(match.end, nodeStart + nodes[n].data.length) - nodeStart;
+        if (from >= to) continue;
+        const part = from > 0 ? nodes[n].splitText(from) : nodes[n];
+        if (to - from < part.data.length) part.splitText(to - from);
+        const mark = document.createElement('mark');
+        mark.className = `find-match${index === currentIndex ? ' active' : ''}`;
+        part.replaceWith(mark);
+        mark.appendChild(part);
+      }
+    }
+    if (scroll) document.querySelector('#preview mark.find-match.active')?.scrollIntoView?.({ block: 'center' });
   }
 
   function scrollToCurrentMatch() {
@@ -321,9 +389,21 @@ window.Find = (function () {
   }
 
   function clearHighlights() {
+    clearEditorHighlights();
+    clearPreviewHighlights();
+  }
+
+  function clearEditorHighlights() {
     if (!highlights) return;
     highlights.replaceChildren();
     highlights.classList.add('hidden');
+  }
+
+  function clearPreviewHighlights() {
+    const root = document.getElementById('preview');
+    if (!root?.querySelector('mark.find-match')) return;
+    root.querySelectorAll('mark.find-match').forEach((mark) => mark.replaceWith(...mark.childNodes));
+    root.normalize();
   }
 
   function syncHighlightScroll() {

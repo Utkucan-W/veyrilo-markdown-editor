@@ -53,7 +53,7 @@ window.Outline = (function () {
       return;
     }
 
-    headings.forEach((heading) => {
+    headings.forEach((heading, index) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'outline-item';
@@ -61,12 +61,19 @@ window.Outline = (function () {
       button.style.setProperty('--outline-indent', `${(heading.level - 1) * 12}px`);
       button.textContent = heading.title;
       button.title = heading.title;
-      button.addEventListener('click', () => jumpToHeading(heading));
+      button.addEventListener('click', () => jumpToHeading(heading, index));
       list.appendChild(button);
     });
   }
 
-  function jumpToHeading(heading) {
+  function jumpToHeading(heading, index) {
+    const body = document.body;
+    if (body.classList.contains('preview-active') && body.getAttribute('data-preview-mode') === 'full') {
+      // shortcut: sıra numarasıyla eşler; setext (===) başlıklar sırayı kaydırır, gerekirse kaynak satırı data-line ile taşı.
+      document.querySelectorAll('#preview h1, #preview h2, #preview h3, #preview h4, #preview h5, #preview h6')[index]
+        ?.scrollIntoView?.({ block: 'start' });
+      return;
+    }
     const editor = window.Editor?.getElement?.();
     if (!editor) return;
     editor.focus();

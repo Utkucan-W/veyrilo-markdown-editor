@@ -55,6 +55,8 @@ window.Shortcuts = (function () {
   // desteklenir.
   const SHORTCUT_ALIASES = {
     bold: [{ key: 'b', ctrl: true, shift: true, alt: false }],
+    // Ctrl++ : Türkçe Q'da '+' Shift ile yazılır ve '=' + shift olarak gelir.
+    fontIncrease: [{ key: '=', ctrl: true, shift: true, alt: false }],
   };
 
   let shortcuts = {};
@@ -117,14 +119,12 @@ window.Shortcuts = (function () {
 
   // ─── Event'ten combo çıkarma ───
   function eventToCombo(e) {
-    // Shift ile basılan noktalama tuşları e.key'de '_' veya '+' olarak gelir.
-    // Fiziksel tuş kodu, Ctrl+Shift+- ve Ctrl+Shift+= gibi kısayolları
-    // klavye düzeninden bağımsız olarak kararlı biçimde tanımlar.
-    const physicalKeys = {
-      Minus: '-',
-      Equal: '=',
-    };
-    const key = physicalKeys[e.code] || e.key.toLowerCase();
+    // Shift ile basılan '-' ve '=' e.key'de '_' ve '+' olarak gelir. Fiziksel
+    // tuş kodu (e.code) kullanılmaz: Türkçe Q'da '-' tuşu ABD'nin Equal
+    // konumundadır ve Ctrl+- yazıyı büyütürdü.
+    const shiftedKeys = { '_': '-', '+': '=' };
+    const lower = e.key.toLowerCase();
+    const key = shiftedKeys[lower] || lower;
     return {
       key,
       ctrl: e.ctrlKey || e.metaKey,
@@ -211,6 +211,25 @@ window.Shortcuts = (function () {
     handlers[actionId] = fn;
   }
 
+  // Belgeyi değiştirmeyen, her yerde çalışması gereken kısayollar.
+  const GLOBAL_ACTIONS = new Set([
+    'find', 'replace', 'preview', 'focus', 'zen', 'save', 'open', 'newdoc',
+    'settings', 'fontIncrease', 'fontDecrease',
+  ]);
+
+  // Düzenleme kısayolları yalnız editör görünürken ve odak başka bir metin
+  // kutusunda değilken çalışır; aksi hâlde gizli belge sessizce değişir ve
+  // arama kutusundaki Ctrl+Z belgeyi geri alır.
+  function editorAcceptsCommands(target) {
+    const isField = target instanceof Element &&
+      (target.matches('input, textarea, select') || target.isContentEditable);
+    if (isField && target.id !== 'editor') return false;
+    const body = document.body;
+    if (body.classList.contains('preview-active') && body.getAttribute('data-preview-mode') === 'full') return false;
+    const guide = document.getElementById('guide-pane');
+    return !(guide && !guide.classList.contains('hidden'));
+  }
+
   // ─── Keyboard event listener ───
   function handleKeyDown(e) {
     const combo = eventToCombo(e);
@@ -220,6 +239,7 @@ window.Shortcuts = (function () {
 
     for (const [actionId, sc] of Object.entries(shortcuts)) {
       if (matchesAction(actionId, sc, combo)) {
+        if (!GLOBAL_ACTIONS.has(actionId) && !editorAcceptsCommands(e.target)) return;
         e.preventDefault();
         e.stopPropagation();
         if (handlers[actionId]) {

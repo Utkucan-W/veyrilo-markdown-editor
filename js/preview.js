@@ -127,6 +127,8 @@ window.Preview = (function () {
       buildScrollAnchors(markdown);
       const editor = window.Editor?.getElement?.();
       if (editor && isVisible) syncScroll(editor);
+      // Yeni HTML eski arama vurgularını sildi; açık arama varsa yeniden işaretle.
+      if (window.Find?.isOpen?.()) window.Find.refresh(false);
     } catch (e) {
       console.error('Markdown render hatası:', e);
       previewContent.innerHTML = '<p style="color:red">Render hatası</p>';
@@ -178,6 +180,7 @@ window.Preview = (function () {
     } else {
       previewPane.classList.add('hidden');
       document.body.classList.remove('preview-active');
+      if (window.Find?.isOpen?.()) window.Find.refresh(false);
     }
 
     // Buton durumu güncelle
