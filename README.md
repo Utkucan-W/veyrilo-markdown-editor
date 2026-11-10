@@ -20,9 +20,9 @@ what this repository is here for.
 
 Built with [Tauri 2](https://v2.tauri.app/), vanilla JavaScript, and Rust.
 
-**Latest release: [Veyrilo v1.1.1](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.1)** · [Download (.deb, .rpm, AppImage)](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest)
+**Latest release: [Veyrilo v1.1.2](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.2)** · [Download (.deb, .rpm, AppImage)](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest)
 
-## What's new in v1.1.1
+## What's new in v1.1.1 and v1.1.2
 
 - **RPM and AppImage packages** next to the `.deb`, plus an AUR recipe.
 - Packaged builds now start on NVIDIA GPUs under Wayland.
@@ -30,6 +30,8 @@ Built with [Tauri 2](https://v2.tauri.app/), vanilla JavaScript, and Rust.
   scrolled into view.
 - `Ctrl+-` / `Ctrl++` work on Turkish Q keyboards, and editing shortcuts no
   longer leak into the search box or the Markdown Guide.
+
+- v1.1.2 updates DOMPurify to 3.4.17 for upstream security advisories.
 
 See [CHANGELOG.md](CHANGELOG.md) for the full list.
 

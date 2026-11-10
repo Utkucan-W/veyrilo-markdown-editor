@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-11-10
+
+### Security
+
+- Update DOMPurify to 3.4.17 (GHSA-p98j-92pf-mc4p, GHSA-6688-9rhm-gjv2,
+  GHSA-cg2g-xh64-v4q7, GHSA-mrv2-3pqr-j5jr, GHSA-c6gr-qvv4-5v3f). Veyrilo's
+  sanitizer does not use the affected `IN_PLACE`, hook, `SAFE_FOR_TEMPLATES`
+  or XHTML modes, so exposure was low.
+
+### Fixed
+
+- Replace the yanked `async-executor` 1.14.0 with 1.14.1.
+
 ## [1.1.1] - 2026-11-10
 
 Packaging and search fixes. Veyrilo now ships for every major Linux family.
@@ -82,7 +95,8 @@ x86_64 Debian package.
 - The About dialog links to the developer's GitHub profile and to the
   project repository; both open in the system browser.
 
-[Unreleased]: https://github.com/Utkucan-W/veyrilo-markdown-editor/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/Utkucan-W/veyrilo-markdown-editor/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.2
 [1.1.1]: https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.1
 [1.1.0]: https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.0.0

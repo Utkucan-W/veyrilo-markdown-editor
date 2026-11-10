@@ -20,9 +20,9 @@ bunun için var.
 
 [Tauri 2](https://v2.tauri.app/), sade JavaScript ve Rust ile geliştirildi.
 
-**Güncel sürüm: [Veyrilo v1.1.1](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.1)** · [İndir (.deb, .rpm, AppImage)](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest)
+**Güncel sürüm: [Veyrilo v1.1.2](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/tag/v1.1.2)** · [İndir (.deb, .rpm, AppImage)](https://github.com/Utkucan-W/veyrilo-markdown-editor/releases/latest)
 
-## v1.1.1 ile gelenler
+## v1.1.1 ve v1.1.2 ile gelenler
 
 - `.deb` yanında **RPM ve AppImage paketleri** ve bir AUR tarifi.
 - Paketlenmiş sürüm artık Wayland altında NVIDIA ekran kartlarında açılıyor.
@@ -30,6 +30,8 @@ bunun için var.
   alana kaydırılır.
 - `Ctrl+-` / `Ctrl++` Türkçe Q klavyede çalışıyor; düzenleme kısayolları
   artık arama kutusuna veya Markdown Rehberi'ne sızmıyor.
+
+- v1.1.2, üst kaynak güvenlik uyarıları için DOMPurify'ı 3.4.17'ye günceller.
 
 Tam liste için [CHANGELOG.md](CHANGELOG.md).
 
